@@ -3,313 +3,409 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Google Classroom</title>
+  <title>Home - Classroom</title>
+  <!-- Pixel Font Import -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <style>
-    /* ==========================================================================
-       CASSIAN SYSTEM STYLES & THEMING ENGINE
-       ========================================================================== */
     :root {
-      --bg-color: #0f172a;
-      --sidebar-bg: #020617;
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --danger: #ef4444;
-      --success: #22c55e;
-      --warning: #f59e0b;
+      --bg-color: #0d0714;
+      --card-bg: #180d28;
+      --neon-pink: #ff2a85;
+      --neon-pink-glow: rgba(255, 42, 133, 0.4);
+      --neon-purple: #9d4edd;
+      --text-main: #ffffff;
+      --text-muted: #ff85a1;
+      --border-color: #ff2a85;
     }
 
-    /* Light Theme Theme Variant */
-    [data-theme="light"] {
-      --bg-color: #f1f5f9;
-      --sidebar-bg: #e2e8f0;
-      --card-bg: #ffffff;
-      --card-border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: var(--bg-color);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'VT323', monospace;
+      touch-action: manipulation;
     }
 
-    /* Neon Cyber Variant */
-    [data-theme="cyber"] {
-      --bg-color: #050505;
-      --sidebar-bg: #0a0a0c;
-      --card-bg: #121218;
-      --card-border: #2a2a3c;
-      --accent: #a855f7;
-      --accent-hover: #9333ea;
-      --text-main: #f3e8ff;
-      --text-muted: #a855f7;
+    /* Floating Particle Background Canvas */
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; touch-action: manipulation; }
 
     /* --- Overlays & Masking Screens --- */
     .overlay-screen {
       position: fixed; inset: 0; z-index: 9999;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #ffffff; color: #3c4043; text-align: center;
+      background: #ffffff; color: #3c4043; text-align: center; font-family: sans-serif;
     }
     .blocked-screen { background: #1a1a1a; color: #ef4444; display: none; }
 
-    /* Mobile Dev Mode Touch Target (Invisible Corner Box) */
+    /* Invisible Mobile Developer Mode Corner Touch Target */
     .dev-touch-zone {
       position: absolute; top: 0; right: 0; width: 48px; height: 48px; z-index: 10000;
       background: transparent; -webkit-tap-highlight-color: transparent;
     }
 
-    /* --- Core App Architecture --- */
-    .app-container { display: none; height: 100vh; flex-direction: row; }
-    
-    sidebar {
-      width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--card-border);
-      display: flex; flex-direction: column; padding: 1.25rem 1rem; gap: 0.5rem; flex-shrink: 0;
-    }
-    
-    .brand-title {
-      font-size: 1.4rem; font-weight: 700; color: var(--accent); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+    /* --- Core Dashboard Architecture --- */
+    .app-container {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 2;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 1rem 1rem 1rem;
     }
 
-    .nav-item {
-      padding: 0.75rem 1rem; border-radius: 8px; color: var(--text-muted);
-      cursor: pointer; transition: all 0.2s; user-select: none; font-weight: 500;
-      display: flex; align-items: center; gap: 0.75rem;
+    /* --- Pixel Header & Date Banner --- */
+    .header-section {
+      text-align: center;
+      margin-top: 0.5rem;
     }
-    .nav-item:hover { background: var(--card-bg); color: var(--text-main); }
-    .nav-item.active { background: var(--accent); color: #020617; font-weight: 600; }
 
-    main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    .view-page { display: none; flex-direction: column; gap: 1.5rem; height: 100%; }
-    .view-page.active { display: flex; }
-
-    /* --- Dashboard UI Components --- */
-    .header-bar {
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    .pixel-day {
+      font-family: 'Press Start 2P', cursive;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink-glow), 3px 3px 0px #000;
+      letter-spacing: 4px;
+      text-transform: uppercase;
     }
-    .search-box {
-      background: var(--card-bg); border: 1px solid var(--card-border); padding: 0.6rem 1rem; border-radius: 8px;
-      color: var(--text-main); width: 100%; max-width: 360px; outline: none;
-    }
-    .clock-display { font-size: 1.1rem; font-weight: 600; color: var(--accent); }
 
-    .widget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-    .widget-card {
-      background: var(--card-bg); border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 12px;
+    .pixel-date {
+      font-family: 'Press Start 2P', cursive;
+      font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+      color: #ffffff;
+      margin-top: 0.5rem;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 0px #000;
     }
-    .widget-card h3 { font-size: 1rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .widget-card .metric { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
 
-    /* --- GitHub External Games System --- */
-    .games-header { display: flex; flex-direction: column; gap: 0.75rem; }
-    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+    /* --- Neon Search Box --- */
+    .search-container {
+      width: 100%;
+      max-width: 720px;
+      position: relative;
+      margin: 1.25rem 0;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(24, 13, 40, 0.85);
+      border: 3px solid var(--neon-pink);
+      border-radius: 8px;
+      padding: 0.75rem 3rem 0.75rem 1.25rem;
+      font-family: 'VT323', monospace;
+      font-size: 1.6rem;
+      color: var(--neon-pink);
+      outline: none;
+      box-shadow: 0 0 15px var(--neon-pink-glow), inset 0 0 10px rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .search-input::placeholder { color: rgba(255, 42, 133, 0.6); }
+
+    .search-icon {
+      position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+      color: var(--neon-pink); font-size: 1.4rem; pointer-events: none;
+    }
+
+    /* --- Game Cards Layout --- */
+    .main-content {
+      width: 100%;
+      max-width: 860px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
     .game-card {
-      background: var(--card-bg); border: 1px solid var(--card-border); padding: 0.75rem 1rem; border-radius: 8px;
-      text-align: center; cursor: pointer; transition: all 0.15s ease; font-weight: 500;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      background: var(--card-bg);
+      border: 3px solid var(--neon-pink);
+      border-radius: 12px;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 10px var(--neon-pink-glow);
     }
-    .game-card:hover { border-color: var(--accent); }
-    .game-card.selected { border-color: var(--accent); background: var(--accent); color: #020617; font-weight: 700; }
 
-    .game-frame-wrapper {
-      flex: 1; background: #000; border-radius: 12px; border: 1px solid var(--card-border);
-      position: relative; overflow: hidden; min-height: 400px;
+    .game-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 0 25px var(--neon-pink);
     }
-    .game-frame { width: 100%; height: 100%; border: none; }
 
-    /* --- Controls & Utilities --- */
-    .btn {
-      background: var(--accent); color: #020617; border: none; padding: 0.6rem 1.2rem; border-radius: 6px;
-      font-weight: 600; cursor: pointer; transition: background 0.2s;
+    .game-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
-    .btn:hover { background: var(--accent-hover); }
 
-    /* Responsive Mobile Layout */
+    .game-title-overlay {
+      position: absolute;
+      bottom: 0; inset-x: 0;
+      background: rgba(13, 7, 20, 0.9);
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.65rem;
+      padding: 0.4rem;
+      text-align: center;
+      border-top: 2px solid var(--neon-pink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .footer-quote {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* --- Retro Bottom Navigation Dock --- */
+    .dock-nav {
+      width: 100%;
+      max-width: 860px;
+      background: rgba(24, 13, 40, 0.9);
+      border: 3px solid var(--neon-pink);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0.4rem 0.75rem;
+      box-shadow: 0 0 15px var(--neon-pink-glow);
+      backdrop-filter: blur(8px);
+    }
+
+    .dock-btn {
+      background: transparent;
+      border: 2px solid transparent;
+      color: var(--text-main);
+      font-family: 'VT323', monospace;
+      font-size: 1.5rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .dock-btn:hover {
+      border-color: var(--neon-pink);
+      color: var(--neon-pink);
+      box-shadow: 0 0 8px var(--neon-pink-glow);
+    }
+
+    .dock-btn.active {
+      background: var(--neon-pink);
+      color: #0d0714;
+      font-weight: bold;
+      box-shadow: 0 0 12px var(--neon-pink);
+    }
+
+    /* Responsive Mobile Adjustments */
     @media (max-width: 768px) {
-      .app-container { flex-direction: column; }
-      sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-around; border-right: none; border-bottom: 1px solid var(--card-border); padding: 0.5rem; }
-      .brand-title { display: none; }
-      main { padding: 1rem; }
-      .header-bar { flex-direction: column; align-items: flex-start; }
+      .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .pixel-day { font-size: 2rem; }
+      .pixel-date { font-size: 0.9rem; }
+      .search-input { font-size: 1.2rem; padding: 0.5rem 1rem; }
+      .dock-nav { overflow-x: auto; justify-content: flex-start; gap: 0.5rem; }
+      .dock-btn { font-size: 1.2rem; padding: 0.3rem 0.6rem; }
     }
 
-    /* --- Toast Notification System --- */
-    #toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 10000; display: flex; flex-direction: column; gap: 0.5rem; }
-    .toast { background: var(--card-bg); border: 1px solid var(--accent); color: var(--text-main); padding: 0.75rem 1rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    /* Viewer Overlay for Embedded GitHub Games */
+    .game-viewer {
+      position: fixed; inset: 0; z-index: 500;
+      background: #0d0714; display: none; flex-direction: column;
+    }
+    .game-viewer-bar {
+      height: 44px; background: #180d28; border-bottom: 2px solid var(--neon-pink);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 1rem;
+    }
+    .game-viewer-bar button {
+      background: var(--neon-pink); color: #0d0714; border: none; padding: 0.3rem 0.8rem;
+      font-family: 'Press Start 2P', cursive; font-size: 0.65rem; border-radius: 4px; cursor: pointer;
+    }
+    .game-viewer iframe { flex: 1; border: none; width: 100%; height: 100%; }
+
+    /* Toast Container */
+    #toast-container { position: fixed; bottom: 5rem; right: 1.5rem; z-index: 10000; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast { background: var(--card-bg); border: 2px solid var(--neon-pink); color: #fff; padding: 0.6rem 1rem; border-radius: 6px; font-family: 'VT323', monospace; font-size: 1.2rem; }
   </style>
 </head>
 <body>
 
-  <!-- Masking Overlay (Google Classroom Cover) -->
+  <!-- Background Animated Particle Canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Cover Mask Overlay -->
   <div id="coverScreen" class="overlay-screen">
-    <!-- Invisible Developer Mode Touch Target Zone (Mobile Top-Right Corner) -->
     <div id="devTouchZone" class="dev-touch-zone" aria-hidden="true"></div>
-    <h2 style="font-size: 2rem;">Google Classroom</h2>
+    <h2 style="font-size: 2rem; color: #3c4043;">Google Classroom</h2>
     <p style="margin-top: 8px; color: #70757a;">Loading classes...</p>
   </div>
 
-  <!-- Restricted Access Overlay -->
+  <!-- Blocked Overlay -->
   <div id="blockedScreen" class="overlay-screen blocked-screen">
     <h1 style="font-size: 2.5rem;">403 Restricted</h1>
     <p style="margin-top: 0.5rem;">Access denied by network administrator.</p>
   </div>
 
-  <!-- Main Cassian Dashboard -->
+  <!-- Main Cassian Synthwave Dashboard -->
   <div id="mainApp" class="app-container">
-    <sidebar>
-      <div class="brand-title">Cassian OS</div>
-      <div id="nav-dashboard" class="nav-item active" onclick="switchTab('view-dashboard', 'nav-dashboard')">Dashboard</div>
-      <div id="nav-games" class="nav-item" onclick="switchTab('view-games', 'nav-games')">Games</div>
-      <div id="nav-settings" class="nav-item" onclick="switchTab('view-settings', 'nav-settings')">Settings</div>
-    </sidebar>
+    
+    <!-- Header Displaying Dynamic Day & Date -->
+    <header class="header-section">
+      <h1 id="dayDisplay" class="pixel-day">SATURDAY</h1>
+      <div id="dateDisplay" class="pixel-date">AUGUST 29, 2026</div>
+    </header>
 
-    <main>
-      <!-- Top Bar Header -->
-      <div class="header-bar">
-        <input type="text" id="appSearch" class="search-box" placeholder="Search Cassian apps or settings..." onkeyup="filterAppList()">
-        <div id="clockDisplay" class="clock-display">00:00:00 AM</div>
+    <main class="main-content">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01" onkeyup="filterGames()">
+        <span class="search-icon">🔍</span>
       </div>
 
-      <!-- Dashboard View -->
-      <section id="view-dashboard" class="view-page active">
-        <h2>System Overview</h2>
-        <div class="widget-grid">
-          <div class="widget-card">
-            <h3>System Status</h3>
-            <div class="metric" style="color: var(--success);">Operational</div>
-          </div>
-          <div class="widget-card">
-            <h3>CDN Mirror Health</h3>
-            <div class="metric" id="cdnHealthMetric">3/3 Online</div>
-          </div>
-          <div class="widget-card">
-            <h3>Active View</h3>
-            <div class="metric" id="activeViewMetric">Dashboard</div>
-          </div>
+      <!-- Retro Arcade Game Cards Grid -->
+      <div class="games-grid" id="gamesGrid">
+        <div class="game-card" data-name="fnf" onclick="launchGame('https://play2048.co/')">
+          <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/javascript/javascript.png" alt="FNF" id="img-fnf">
+          <div class="game-title-overlay">FNF</div>
         </div>
-      </section>
+        <div class="game-card" data-name="1v1lol" onclick="launchGame('https://hextris.io/')">
+          <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/html/html.png" alt="1v1.LOL" id="img-1v1">
+          <div class="game-title-overlay">1v1.LOL</div>
+        </div>
+        <div class="game-card" data-name="retrobowl" onclick="launchGame('https://pacman.cc/')">
+          <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/css/css.png" alt="Retro Bowl" id="img-retro">
+          <div class="game-title-overlay">Retro Bowl</div>
+        </div>
+        <div class="game-card" data-name="geometrydash" onclick="launchGame('https://paper-io.com/')">
+          <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/canvas/canvas.png" alt="Geometry Dash" id="img-gd">
+          <div class="game-title-overlay">Geo Dash</div>
+        </div>
+      </div>
 
-      <!-- Games View (Sourced from Open-Source GitHub Pages Repositories) -->
-      <section id="view-games" class="view-page">
-        <div class="games-header">
-          <h2>GitHub Open-Source Games Library</h2>
-          <div class="games-grid" id="gamesGrid">
-            <div class="game-card selected" onclick="loadGitHubGame('https://play2048.co/', this)">2048</div>
-            <div class="game-card" onclick="loadGitHubGame('https://hextris.io/', this)">Hextris</div>
-            <div class="game-card" onclick="loadGitHubGame('https://pacman.cc/', this)">Pacman</div>
-            <div class="game-card" onclick="loadGitHubGame('https://paper-io.com/', this)">Paper.io</div>
-          </div>
-        </div>
-
-        <div class="game-frame-wrapper">
-          <iframe id="gameIframe" class="game-frame" src="https://play2048.co/" allowfullscreen></iframe>
-        </div>
-      </section>
-
-      <!-- Settings View -->
-      <section id="view-settings" class="view-page">
-        <h2>System Configuration</h2>
-        <div class="widget-card" style="max-width: 480px;">
-          <h3>Theme Selection</h3>
-          <select id="themeSelect" onchange="applyTheme(this.value)" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--card-border); border-radius: 6px;">
-            <option value="dark">Dark Theme (Default)</option>
-            <option value="light">Light Theme</option>
-            <option value="cyber">Neon Cyber Theme</option>
-          </select>
-        </div>
-
-        <div class="widget-card" style="max-width: 480px; margin-top: 1rem;">
-          <h3>CDN Mirror Diagnostics</h3>
-          <button class="btn" onclick="CassianCDN.testAllMirrors().then(res => showToast('CDN pings logged to console'))" style="margin-top: 0.75rem;">Run Health Check</button>
-        </div>
-      </section>
+      <div class="footer-quote">rub your Chromebook for good luck -</div>
     </main>
+
+    <!-- Retro Navigation Bar Dock -->
+    <nav class="dock-nav">
+      <button class="dock-btn active">🏠 Home</button>
+      <button class="dock-btn" onclick="showToast('Games active')">🎮 Games</button>
+      <button class="dock-btn" onclick="showToast('Tools section')">🛠️ Tools</button>
+      <button class="dock-btn" onclick="showToast('Apps section')">💬 Apps</button>
+      <button class="dock-btn" onclick="showToast('Settings')">⚙️ Settings</button>
+    </nav>
+  </div>
+
+  <!-- Game Embed Viewer Overlay -->
+  <div id="gameViewer" class="game-viewer">
+    <div class="game-viewer-bar">
+      <span style="color: var(--neon-pink); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">CASSIAN RUNTIME</span>
+      <button onclick="closeGame()">CLOSE [X]</button>
+    </div>
+    <iframe id="gameViewerFrame" src="about:blank"></iframe>
   </div>
 
   <div id="toast-container"></div>
 
   <script>
     /* ==========================================================================
-       1. CDN FALLBACK SUBSYSTEM (Provider-Specific Architecture)
+       1. DYNAMIC DATE & BACKGROUND PARTICLES
        ========================================================================== */
-    window.CassianCDN = {
-      mirrors: [
-        {
-          name: 'jsDelivr',
-          buildUrl: (pkg, file) => `https://cdn.jsdelivr.net/npm/${pkg}/${file}`
-        },
-        {
-          name: 'unpkg',
-          buildUrl: (pkg, file) => `https://unpkg.com/${pkg}/${file}`
-        },
-        {
-          name: 'cdnjs',
-          buildUrl: (pkg, file) => `https://cdnjs.cloudflare.com/ajax/libs/${pkg}/${file}`
-        }
-      ],
+    function updateDateDisplay() {
+      const now = new Date();
+      const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+      const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+      
+      document.getElementById('dayDisplay').textContent = days[now.getDay()];
+      document.getElementById('dateDisplay').textContent = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    }
+    updateDateDisplay();
 
-      async fetchWithFallback(packageSpec, filePath, options = {}) {
-        const errors = [];
-        for (const mirror of this.mirrors) {
-          const url = mirror.buildUrl(packageSpec, filePath);
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), options.timeout || 5000);
+    // Floating Dust Particle Simulation Canvas
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
 
-            const response = await fetch(url, { signal: controller.signal });
-            clearTimeout(timeoutId);
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return { response, mirror: mirror.name, url };
-          } catch (err) {
-            errors.push({ mirror: mirror.name, error: err.message });
-          }
-        }
-        throw new Error(`All CDN mirrors failed:\n` + errors.map(e => `[${e.mirror}]: ${e.error}`).join('\n'));
-      },
+    for(let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.6 + 0.2,
+        speedY: -Math.random() * 0.4 - 0.1
+      });
+    }
 
-      async testAllMirrors(packageSpec = 'jquery@3.6.0', filePath = 'package.json') {
-        const results = await Promise.allSettled(
-          this.mirrors.map(async (mirror) => {
-            const url = mirror.buildUrl(packageSpec, filePath);
-            const start = performance.now();
-            const response = await fetch(url, { method: 'HEAD' });
-            const latency = Math.round(performance.now() - start);
-
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return { mirror: mirror.name, latency, ok: true };
-          })
-        );
-
-        const summary = results.map((res, i) => {
-          if (res.status === 'fulfilled') return res.value;
-          return { mirror: this.mirrors[i].name, ok: false, error: res.reason.message };
-        });
-        
-        console.table(summary);
-        return summary;
-      }
-    };
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ff2a85';
+      
+      particles.forEach(p => {
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        p.y += p.speedY;
+        if(p.y < 0) p.y = canvas.height;
+      });
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
 
     /* ==========================================================================
-       2. UI NAVIGATION, THEMES & CLOCK
+       2. UI SEARCH & GAME LAUNCHER
        ========================================================================== */
-    function switchTab(viewId, navId) {
-      document.querySelectorAll('.view-page').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    function filterGames() {
+      const query = document.getElementById('gameSearch').value.toLowerCase();
+      document.querySelectorAll('.game-card').forEach(card => {
+        const text = card.getAttribute('data-name') + card.textContent;
+        card.style.display = text.toLowerCase().includes(query) ? 'block' : 'none';
+      });
+    }
 
-      const targetView = document.getElementById(viewId);
-      const targetNav = document.getElementById(navId);
+    function launchGame(url) {
+      document.getElementById('gameViewerFrame').src = url;
+      document.getElementById('gameViewer').style.display = 'flex';
+    }
 
-      if (targetView) targetView.classList.add('active');
-      if (targetNav) targetNav.classList.add('active');
-
-      const activeMetric = document.getElementById('activeViewMetric');
-      if (activeMetric) activeMetric.textContent = navId.replace('nav-', '').toUpperCase();
+    function closeGame() {
+      document.getElementById('gameViewerFrame').src = 'about:blank';
+      document.getElementById('gameViewer').style.display = 'none';
     }
 
     function showToast(message) {
@@ -318,89 +414,36 @@
       toast.className = 'toast';
       toast.textContent = message;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    function applyTheme(themeName) {
-      document.documentElement.setAttribute('data-theme', themeName);
-      showToast(`Applied ${themeName} theme`);
-    }
-
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clockDisplay').textContent = now.toLocaleTimeString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function filterAppList() {
-      const query = document.getElementById('appSearch').value.toLowerCase();
-      document.querySelectorAll('.game-card').forEach(card => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(query) ? 'block' : 'none';
-      });
-    }
-
-    function loadGitHubGame(url, cardEl) {
-      document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
-      if (cardEl) cardEl.classList.add('selected');
-      document.getElementById('gameIframe').src = url;
+      setTimeout(() => toast.remove(), 2500);
     }
 
     /* ==========================================================================
-       3. ENTRANCE & UNLOCK SEQUENCE
+       3. DEVELOPER MODE SHORTCUT (MOBILE & DESKTOP)
        ========================================================================== */
-    let escCount = 0;
-    window.addEventListener('keydown', (e) => {
-      // Standard 5x Escape key trigger for desktop
-      if (e.key === 'Escape') {
-        escCount++;
-        if (escCount >= 5) {
-          document.getElementById('coverScreen').style.display = 'none';
-          document.getElementById('mainApp').style.display = 'flex';
-          showToast('Cassian Unlocked');
-        }
-      }
-    });
-
-    /* ==========================================================================
-       4. DEVELOPER MODE SHORTCUT (MOBILE & DESKTOP)
-       ========================================================================== */
-    const DEV_CONFIG = {
-      enabled: true,
-      shortcutKey: 'D',
-      targetPageId: 'view-games',
-      targetNavId: 'nav-games'
-    };
+    const DEV_CONFIG = { enabled: true, shortcutKey: 'D' };
 
     function activateDeveloperMode() {
       if (!DEV_CONFIG.enabled) return;
-
-      console.warn('[DEV MODE] Bypassing cover overlays directly to Games view.');
-
       document.getElementById('coverScreen').style.display = 'none';
       document.getElementById('blockedScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'flex';
-
-      switchTab(DEV_CONFIG.targetPageId, DEV_CONFIG.targetNavId);
-      showToast('Developer Mode: Jumped to GitHub Games');
+      showToast('Developer Mode Active');
     }
 
-    // Mobile Developer Touch Trigger: Top-right corner target
+    // Stealth Touch Target on Top-Right Corner for Mobile
     const devTouchZone = document.getElementById('devTouchZone');
     if (devTouchZone) {
-      devTouchZone.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        activateDeveloperMode();
-      });
-      devTouchZone.addEventListener('click', (e) => {
-        e.preventDefault();
-        activateDeveloperMode();
-      });
+      devTouchZone.addEventListener('touchstart', (e) => { e.preventDefault(); activateDeveloperMode(); });
+      devTouchZone.addEventListener('click', (e) => { e.preventDefault(); activateDeveloperMode(); });
     }
 
-    // Desktop Developer Keyboard Trigger: Shift + D
+    // Desktop Key Binding (Shift + D) & Standard Escape Sequence (5x)
+    let escCount = 0;
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        escCount++;
+        if (escCount >= 5) activateDeveloperMode();
+      }
       if (DEV_CONFIG.enabled && e.shiftKey && e.key.toUpperCase() === DEV_CONFIG.shortcutKey) {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         e.preventDefault();
