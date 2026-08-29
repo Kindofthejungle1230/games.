@@ -16,11 +16,15 @@
       --text-muted: #ff85a1;
       --border-color: #ff2a85;
       
-      /* Configurable Minecraft Text Color Variable */
+      /* Configurable Minecraft Text Color */
       --minecraft-text-color: #22c55e;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
     
     body {
       background: var(--bg-color);
@@ -29,10 +33,10 @@
       overflow: hidden;
       font-family: 'VT323', monospace;
       touch-action: manipulation;
-      transition: background 0.2s;
+      transition: background 0.2s ease;
     }
 
-    /* Background Animation Canvas */
+    /* Background Animation Canvas - Explicitly non-interactive */
     #particleCanvas {
       position: fixed;
       inset: 0;
@@ -42,16 +46,36 @@
 
     /* --- Overlays & Stealth Mask Screens --- */
     .overlay-screen {
-      position: fixed; inset: 0; z-index: 9999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #ffffff; color: #3c4043; text-align: center; font-family: sans-serif;
+      position: fixed; 
+      inset: 0; 
+      z-index: 9999;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+      background: #ffffff; 
+      color: #3c4043; 
+      text-align: center; 
+      font-family: sans-serif;
     }
-    .blocked-screen { background: #1a1a1a; color: #ef4444; display: none; }
+    .blocked-screen { 
+      background: #1a1a1a; 
+      color: #ef4444; 
+      display: none; 
+    }
 
-    /* Invisible Mobile Developer Mode Corner Touch Target (Strict 48x48px) */
+    /* Invisible Mobile Developer Mode Corner Touch Target (Strict 40x40px) */
     .dev-touch-zone {
-      position: absolute; top: 0; right: 0; width: 48px; height: 48px; z-index: 10000;
-      background: transparent; -webkit-tap-highlight-color: transparent; cursor: pointer;
+      position: absolute; 
+      top: 0; 
+      right: 0; 
+      width: 40px; 
+      height: 40px; 
+      z-index: 10000;
+      background: transparent; 
+      -webkit-tap-highlight-color: transparent; 
+      cursor: pointer;
+      touch-action: manipulation;
     }
 
     /* --- Core Dashboard Architecture --- */
@@ -71,6 +95,7 @@
     .header-section {
       text-align: center;
       margin-top: 0.5rem;
+      pointer-events: auto;
     }
 
     .pixel-day {
@@ -79,7 +104,7 @@
       color: var(--neon-pink);
       letter-spacing: 4px;
       text-transform: uppercase;
-      transition: color 0.2s;
+      transition: color 0.2s ease;
     }
 
     .pixel-date {
@@ -96,6 +121,7 @@
       max-width: 720px;
       position: relative;
       margin: 1rem 0;
+      z-index: 20;
     }
 
     .search-input {
@@ -108,14 +134,23 @@
       font-size: 1.6rem;
       color: var(--text-main);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s ease;
+      touch-action: auto;
     }
 
-    .search-input::placeholder { color: var(--neon-pink); opacity: 0.7; }
+    .search-input::placeholder { 
+      color: var(--neon-pink); 
+      opacity: 0.7; 
+    }
 
     .search-icon {
-      position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
-      color: var(--neon-pink); font-size: 1.4rem; pointer-events: none;
+      position: absolute; 
+      right: 1rem; 
+      top: 50%; 
+      transform: translateY(-50%);
+      color: var(--neon-pink); 
+      font-size: 1.4rem; 
+      pointer-events: none;
     }
 
     /* --- Placeholder Games Grid Layout --- */
@@ -127,6 +162,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      z-index: 20;
     }
 
     .games-grid {
@@ -150,12 +186,17 @@
       align-items: center;
       justify-content: center;
       user-select: none;
-      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      will-change: transform, box-shadow;
     }
 
-    .game-card:hover { transform: translateY(-4px); }
+    .game-card:hover { 
+      transform: translateY(-4px); 
+    }
 
-    /* Highlight class triggered on click */
+    /* Highlight class triggered on click/tap */
     .game-card.selected {
       border-color: #ffffff !important;
       box-shadow: 0 0 15px var(--border-color);
@@ -165,11 +206,13 @@
     .game-card-icon {
       font-size: 3rem;
       margin-bottom: 0.5rem;
+      pointer-events: none;
     }
 
     .game-title-overlay {
       position: absolute;
-      bottom: 0; inset-x: 0;
+      bottom: 0; 
+      inset-x: 0;
       background: rgba(0, 0, 0, 0.85);
       color: #fff;
       font-family: 'Press Start 2P', cursive;
@@ -180,9 +223,10 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      pointer-events: none;
     }
 
-    /* Custom Color styling specifically applied to the Minecraft title */
+    /* Custom Color styling for Minecraft card */
     .minecraft-card .game-title-overlay {
       color: var(--minecraft-text-color);
     }
@@ -193,6 +237,7 @@
       color: var(--text-muted);
       margin-bottom: 0.75rem;
       text-align: center;
+      pointer-events: none;
     }
 
     /* --- Bottom Navigation Dock & Settings Controls --- */
@@ -206,7 +251,7 @@
       align-items: center;
       justify-content: space-around;
       padding: 0.5rem;
-      z-index: 100;
+      z-index: 20;
       gap: 0.5rem;
       flex-wrap: wrap;
     }
@@ -223,6 +268,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
+      touch-action: manipulation;
     }
 
     .dock-btn:hover {
@@ -255,6 +301,7 @@
       border-radius: 4px;
       cursor: pointer;
       background: none;
+      touch-action: manipulation;
     }
 
     /* Toast Notification */
@@ -288,12 +335,13 @@
 </head>
 <body>
 
-  <!-- Floating Background Canvas -->
+  <!-- Non-blocking Floating Particle Background -->
   <canvas id="particleCanvas"></canvas>
 
   <!-- Google Classroom Stealth Mask Cover Screen -->
   <div id="coverScreen" class="overlay-screen">
-    <div id="devTouchZone" class="dev-touch-zone" title="Dev Mode Touch Target"></div>
+    <!-- Strict 40x40 Touch Zone for Developer Mode -->
+    <div id="devTouchZone" class="dev-touch-zone" title="Dev Mode Target"></div>
     <h2 style="font-size: 2rem; color: #3c4043;">Google Classroom</h2>
     <p style="margin-top: 8px; color: #70757a;">Loading classes...</p>
   </div>
@@ -315,28 +363,28 @@
     <main class="main-content">
       <!-- Search Bar -->
       <div class="search-container">
-        <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01" oninput="filterGames()">
+        <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01">
         <span class="search-icon">🔍</span>
       </div>
 
-      <!-- Placeholder Games Grid -->
+      <!-- Interactive Placeholder Games Grid -->
       <div class="games-grid" id="gamesGrid">
         <!-- Main Minecraft Placeholder Card -->
-        <div class="game-card minecraft-card" data-name="minecraft" onclick="selectCard(this, 'Minecraft — Coming Soon')">
+        <div class="game-card minecraft-card" data-name="minecraft" data-toast="Minecraft — Coming Soon">
           <div class="game-card-icon">🟩</div>
           <div class="game-title-overlay">Minecraft</div>
         </div>
         
         <!-- Auxiliary Placeholder Cards -->
-        <div class="game-card" data-name="placeholder 1" onclick="selectCard(this, 'Placeholder 1 — Coming Soon')">
+        <div class="game-card" data-name="placeholder 1" data-toast="Placeholder 1 — Coming Soon">
           <div class="game-card-icon">🟦</div>
           <div class="game-title-overlay">Slot 2</div>
         </div>
-        <div class="game-card" data-name="placeholder 2" onclick="selectCard(this, 'Placeholder 2 — Coming Soon')">
+        <div class="game-card" data-name="placeholder 2" data-toast="Placeholder 2 — Coming Soon">
           <div class="game-card-icon">🟥</div>
           <div class="game-title-overlay">Slot 3</div>
         </div>
-        <div class="game-card" data-name="placeholder 3" onclick="selectCard(this, 'Placeholder 3 — Coming Soon')">
+        <div class="game-card" data-name="placeholder 3" data-toast="Placeholder 3 — Coming Soon">
           <div class="game-card-icon">🟨</div>
           <div class="game-title-overlay">Slot 4</div>
         </div>
@@ -347,33 +395,35 @@
 
     <!-- Bottom Navigation Dock & Themes Menu -->
     <nav class="dock-nav">
-      <button class="dock-btn active" onclick="showToast('Home View Active')">🏠 Home</button>
-      <button class="dock-btn" onclick="showToast('Games Dashboard')">🎮 Games</button>
+      <button class="dock-btn active" id="btnHome">🏠 Home</button>
+      <button class="dock-btn" id="btnGames">🎮 Games</button>
       
       <!-- Theme Customizer Pickers -->
       <div class="color-picker-group">
         <label for="textColorPicker">Text:</label>
-        <input type="color" id="textColorPicker" value="#ff2a85" oninput="updateTextTheme(this.value)">
+        <input type="color" id="textColorPicker" value="#ff2a85">
       </div>
 
       <div class="color-picker-group">
         <label for="mcColorPicker">MC Color:</label>
-        <input type="color" id="mcColorPicker" value="#22c55e" oninput="updateMinecraftColor(this.value)">
+        <input type="color" id="mcColorPicker" value="#22c55e">
       </div>
 
       <div class="color-picker-group">
         <label for="bgColorPicker">BG:</label>
-        <input type="color" id="bgColorPicker" value="#0d0714" oninput="updateBgTheme(this.value)">
+        <input type="color" id="bgColorPicker" value="#0d0714">
       </div>
 
-      <button class="dock-btn" onclick="showToast('Settings Menu')">⚙️ Settings</button>
+      <button class="dock-btn" id="btnSettings">⚙️ Settings</button>
     </nav>
   </div>
 
   <div id="toast-container"></div>
 
   <script>
-    /* 1. Date calculation */
+    /* ==========================================================================
+       1. DATE & TIME DISPLAY
+       ========================================================================== */
     function updateDateDisplay() {
       const now = new Date();
       const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -384,19 +434,25 @@
     }
     updateDateDisplay();
 
-    /* 2. Particle Simulation Canvas */
+    /* ==========================================================================
+       2. HIGH-PERFORMANCE PARTICLE ANIMATION ENGINE
+       ========================================================================== */
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
+    
+    // Cache particle color to avoid expensive DOM queries during render loop
+    let cachedParticleColor = '#ff2a85';
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', resizeCanvas, { passive: true });
     resizeCanvas();
 
-    for(let i = 0; i < 35; i++) {
+    // Generate 35 optimized particle vectors
+    for (let i = 0; i < 35; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -408,28 +464,31 @@
 
     function renderParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const mainColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#ff2a85';
-      ctx.fillStyle = mainColor;
+      ctx.fillStyle = cachedParticleColor;
       
-      particles.forEach(p => {
+      const width = canvas.width;
+      const height = canvas.height;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         ctx.globalAlpha = p.alpha;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();
+        
         p.y += p.speedY;
-        if(p.y < 0) p.y = canvas.height;
-      });
+        if (p.y < 0) {
+          p.y = height;
+          p.x = Math.random() * width;
+        }
+      }
       requestAnimationFrame(renderParticles);
     }
-    renderParticles();
+    requestAnimationFrame(renderParticles);
 
-    /* 3. Card Selection & Notification Systems */
-    function selectCard(cardElement, message) {
-      document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
-      cardElement.classList.add('selected');
-      showToast(message);
-    }
-
+    /* ==========================================================================
+       3. INTERACTIVE POINTER EVENTS & UI HANDLERS
+       ========================================================================== */
     function showToast(message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -439,29 +498,58 @@
       setTimeout(() => toast.remove(), 2500);
     }
 
-    function filterGames() {
-      const query = document.getElementById('gameSearch').value.toLowerCase();
-      document.querySelectorAll('.game-card').forEach(card => {
-        const text = card.getAttribute('data-name') + card.textContent;
+    // Attach Pointer Events to All Game Placeholder Cards for Touch & Click Reliability
+    const gameCards = document.querySelectorAll('.game-card');
+    gameCards.forEach(card => {
+      const handleSelect = (e) => {
+        e.preventDefault();
+        gameCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const toastMsg = card.getAttribute('data-toast') || 'Coming Soon';
+        showToast(toastMsg);
+      };
+
+      card.addEventListener('pointerdown', handleSelect);
+    });
+
+    // Real-time Search Box Filter
+    const searchInput = document.getElementById('gameSearch');
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+      gameCards.forEach(card => {
+        const text = card.getAttribute('data-name') + " " + card.textContent;
         card.style.display = text.toLowerCase().includes(query) ? 'flex' : 'none';
       });
-    }
+    });
 
-    /* 4. Color Customizer Handlers */
-    function updateTextTheme(color) {
-      document.documentElement.style.setProperty('--neon-pink', color);
-      document.documentElement.style.setProperty('--border-color', color);
-    }
+    // Color Pickers Input Events
+    const textColorPicker = document.getElementById('textColorPicker');
+    const mcColorPicker = document.getElementById('mcColorPicker');
+    const bgColorPicker = document.getElementById('bgColorPicker');
 
-    function updateMinecraftColor(color) {
-      document.documentElement.style.setProperty('--minecraft-text-color', color);
-    }
+    textColorPicker.addEventListener('input', (e) => {
+      const val = e.target.value;
+      document.documentElement.style.setProperty('--neon-pink', val);
+      document.documentElement.style.setProperty('--border-color', val);
+      cachedParticleColor = val; // Update particle cache directly
+    });
 
-    function updateBgTheme(color) {
-      document.documentElement.style.setProperty('--bg-color', color);
-    }
+    mcColorPicker.addEventListener('input', (e) => {
+      document.documentElement.style.setProperty('--minecraft-text-color', e.target.value);
+    });
 
-    /* 5. Developer Mode Trigger System */
+    bgColorPicker.addEventListener('input', (e) => {
+      document.documentElement.style.setProperty('--bg-color', e.target.value);
+    });
+
+    // Dock Navigation Buttons
+    document.getElementById('btnHome').addEventListener('pointerdown', () => showToast('Home View Active'));
+    document.getElementById('btnGames').addEventListener('pointerdown', () => showToast('Games Dashboard'));
+    document.getElementById('btnSettings').addEventListener('pointerdown', () => showToast('Settings Menu'));
+
+    /* ==========================================================================
+       4. DEVELOPER MODE ACTIVATION TRIGGERS
+       ========================================================================== */
     function activateDeveloperMode() {
       document.getElementById('coverScreen').style.display = 'none';
       document.getElementById('blockedScreen').style.display = 'none';
@@ -469,14 +557,18 @@
       showToast('Developer Mode — Games Active');
     }
 
-    // Stealth Touch Target on Top-Right Corner for Mobile (48x48px)
+    // Trigger 1: Mobile 40x40px Invisible Touch Corner Target
     const devTouchZone = document.getElementById('devTouchZone');
     if (devTouchZone) {
-      devTouchZone.addEventListener('touchstart', (e) => { e.preventDefault(); activateDeveloperMode(); });
-      devTouchZone.addEventListener('click', (e) => { e.preventDefault(); activateDeveloperMode(); });
+      const triggerDevMode = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activateDeveloperMode();
+      };
+      devTouchZone.addEventListener('pointerdown', triggerDevMode);
     }
 
-    // Key Binding (Shift + D) & Escape Chain (5x)
+    // Trigger 2: Key Binding (Shift + D) & Trigger 3: Escape Chain (5x)
     let escCount = 0;
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
