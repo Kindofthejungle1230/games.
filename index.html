@@ -1,928 +1,276 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark light">
-<title>Classes - Google Classroom</title>
-<script>
-(function(){
-  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-  document.documentElement.setAttribute('data-theme', prefersLight ? 'light' : 'dark');
-})();
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  /* --- MASKING OVERLAY STYLES --- */
-  #coverScreen {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-    background-color: #202124;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-    color: #e8eaed;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
-
-  .gc-header {
-    height: 64px;
-    border-bottom: 1px solid #3c4043;
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    justify-content: space-between;
-    background-color: #202124;
-  }
-
-  .gc-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.25rem;
-    color: #e8eaed;
-    font-weight: 500;
-  }
-
-  .gc-icon {
-    width: 24px;
-    height: 24px;
-    background-color: #34a853;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    color: #fff;
-  }
-
-  .gc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 24px;
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .gc-card {
-    background-color: #2d2e31;
-    border-radius: 8px;
-    border: 1px solid #3c4043;
-    overflow: hidden;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .gc-card-banner {
-    height: 90px;
-    padding: 16px;
-    color: white;
-    font-weight: 600;
-  }
-
-  .b-blue { background-color: #1a73e8; }
-  .b-green { background-color: #137333; }
-  .b-purple { background-color: #a142f4; }
-
-  .gc-card-title { font-size: 1.1rem; }
-  .gc-card-sub { font-size: 0.8rem; opacity: 0.8; margin-top: 4px; }
-
-  #blockedScreen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    width: 100vw;
-    background-color: #000000;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10000;
-    color: #ffffff;
-    font-family: monospace;
-    padding: 20px;
-    text-align: center;
-  }
-
-  .error-code {
-    font-size: 0.75rem;
-    color: #666666;
-    margin-bottom: 12px;
-    letter-spacing: 0.5px;
-  }
-
-  .blocked-title {
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: #ff3333;
-    letter-spacing: 4px;
-  }
-
-  /* --- CASSIAN ORIGINAL STYLES --- */
-  :root {
-    --bg: #EAEDEA;
-    --surface: #FFFFFF;
-    --surface-2: #F2F4F1;
-    --text: #14171B;
-    --text-muted: #5B6167;
-    --border: #DBDFDA;
-    --accent: #B8862E;
-    --accent-rgb: 184, 134, 46;
-    --accent-text: #14171B;
-    --signal: #2E8E86;
-    --signal-rgb: 46, 142, 134;
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 22px;
-    --shadow: 0 1px 2px rgba(20,23,27,0.05), 0 10px 26px rgba(20,23,27,0.07);
-    --font-display: 'Instrument Serif', Georgia, serif;
-    --font-body: 'Manrope', 'Segoe UI', system-ui, sans-serif;
-    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
-  }
-
-  html[data-theme="dark"] {
-    --bg: #12151B;
-    --surface: #1B1F27;
-    --surface-2: #20242D;
-    --text: #ECEEEC;
-    --text-muted: #8A9099;
-    --border: #2B303A;
-    --accent: #D2A752;
-    --accent-rgb: 210, 167, 82;
-    --accent-text: #14171B;
-    --signal: #4FC2B8;
-    --signal-rgb: 79, 194, 184;
-    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 14px 34px rgba(0,0,0,0.4);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { height: 100%; }
-  body {
-    margin: 0;
-    font-family: var(--font-body);
-    background: var(--bg);
-    color: var(--text);
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 34px 34px;
-    background-attachment: fixed;
-  }
-
-  #cassianApp { display: none; }
-  #cassianApp.active { display: grid; }
-
-  button, input, select { font-family: inherit; }
-  blockquote { margin: 0; padding: 0; border: none; }
-  a { color: inherit; }
-  svg { display: block; }
-  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: .001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: .001ms !important;
-      scroll-behavior: auto !important;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Classroom</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
-  }
 
-  /* Layout */
-  .app { grid-template-columns: 246px 1fr; height: 100vh; }
-  .sidebar {
-    background: var(--surface); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; padding: 22px 14px 14px; overflow-y: auto;
-  }
-  .brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 26px; }
-  .brand-mark {
-    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
-    background: var(--surface-2); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-display); font-style: italic; font-size: 19px; color: var(--accent);
-  }
-  .brand-name { font-family: var(--font-display); font-style: italic; font-size: 20px; letter-spacing: .01em; }
-  .nav { display: flex; flex-direction: column; gap: 3px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 12px 10px 13px; border-radius: 8px;
-    border: none; border-left: 3px solid transparent;
-    background: transparent; color: var(--text-muted);
-    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .07em;
-    cursor: pointer; text-align: left; width: 100%;
-    transition: background .15s ease, color .15s ease, border-color .15s ease;
-  }
-  .nav-item:hover { background: var(--surface-2); color: var(--text); }
-  .nav-item.active { background: var(--surface-2); color: var(--text); border-left-color: var(--accent); }
-  .nav-item.active .nav-icon { color: var(--accent); }
-  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
-  .nav-icon svg { width: 100%; height: 100%; }
-  .sidebar-foot { margin-top: auto; padding: 16px 10px 2px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; color: var(--text-muted); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; }
 
-  .main { display: flex; flex-direction: column; min-width: 0; height: 100vh; overflow-y: auto; }
-  .topbar {
-    position: sticky; top: 0; z-index: 5; background: var(--bg);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 32px; border-bottom: 1px solid var(--border);
-  }
-  .topbar h1 { font-family: var(--font-display); font-weight: 400; font-size: 22px; margin: 0; }
-  .page-sub { margin: 3px 0 0; font-size: 12.5px; color: var(--text-muted); }
-  .now-panel { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); flex-shrink: 0; }
-  .now-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); flex-shrink: 0; animation: signalPulse 2.4s ease-in-out infinite; }
-  @keyframes signalPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--signal-rgb), .5); }
-    50% { box-shadow: 0 0 0 5px rgba(var(--signal-rgb), 0); }
-  }
-  .now-readout { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.35; }
-  .now-time { font-family: var(--font-mono); font-size: 14.5px; font-weight: 600; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
-  .now-date { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: .03em; text-transform: uppercase; }
+    /* --- Overlays --- */
+    .overlay-screen {
+      position: fixed; inset: 0; z-index: 999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #ffffff; color: #3c4043; text-align: center;
+    }
+    .blocked-screen { background: #1a1a1a; color: #ef4444; display: none; }
 
-  .view { display: none; padding: 30px 32px 56px; max-width: 980px; }
-  .view.active { display: block; }
+    /* --- Mobile Dev Mode Touch Target (Invisible Corner) --- */
+    .dev-touch-zone {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 48px;
+      height: 48px;
+      z-index: 10000;
+      /* Background remains completely transparent for stealth */
+      background: transparent;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  /* Typography utilities */
-  .eyebrow { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0 0 6px; }
-  .greeting-text { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 30px; margin: 0 0 26px; }
-  .text-muted { color: var(--text-muted); }
+    /* --- App Layout --- */
+    .app-container { display: none; height: 100vh; flex-direction: row; }
+    
+    sidebar {
+      width: 240px; background: #020617; border-right: 1px solid #1e293b;
+      display: flex; flex-direction: column; padding: 1rem; gap: 0.5rem;
+    }
+    
+    .nav-item {
+      padding: 0.75rem 1rem; border-radius: 8px; color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s; user-select: none;
+    }
+    .nav-item:hover { background: #1e293b; color: var(--text-main); }
+    .nav-item.active { background: var(--accent); color: #020617; font-weight: 600; }
 
-  /* Cards */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow); }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .home-top { margin-bottom: 32px; }
-  .card-label { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); font-weight: 600; margin: 0 0 10px; }
-  .word { font-family: var(--font-display); font-style: italic; font-size: 25px; margin: 0 0 8px; color: var(--accent); }
-  .quote { font-family: var(--font-display); font-style: italic; font-size: 17px; line-height: 1.5; margin: 0; }
+    main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .view-page { display: none; }
+    .view-page.active { display: block; }
 
-  .section-head { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 14px; }
-  .section-head h3 { font-family: var(--font-display); font-weight: 400; font-size: 17px; margin: 0; }
-  .link-btn { background: none; border: none; color: var(--accent); font-family: var(--font-body); font-weight: 600; font-size: 13px; cursor: pointer; padding: 0; }
+    /* Mobile Responsive Sidebar Adjustments */
+    @media (max-width: 640px) {
+      .app-container { flex-direction: column; }
+      sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-around; border-right: none; border-bottom: 1px solid #1e293b; }
+      main { flex: 1; padding: 1rem; }
+    }
 
-  /* Quick link bars */
-  .bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
-  .bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .bar-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); font-weight: 600; margin-right: 2px; }
-  .chip-link { padding: 6px 12px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); font-family: var(--font-body); font-size: 12.5px; text-decoration: none; }
-  .chip-add { padding: 6px 12px; border-radius: 999px; border: 1px dashed var(--border); background: transparent; font-family: var(--font-body); font-size: 12.5px; color: var(--text-muted); cursor: pointer; }
-
-  /* Games */
-  .game-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
-  .game-mini-card, .game-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
-    display: flex; flex-direction: column; align-items: flex-start; gap: 10px; cursor: pointer;
-    transition: transform .15s ease, border-color .15s ease; text-align: left;
-  }
-  .game-mini-card { padding: 14px; }
-  .game-card { padding: 20px; gap: 12px; }
-  .game-mini-card:hover, .game-card:hover { transform: translateY(-3px); border-color: var(--accent); }
-  .tile { border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-mono); font-weight: 600; }
-  .game-mini-card .tile { width: 38px; height: 38px; font-size: 13px; border-radius: 10px; }
-  .game-card .tile { width: 52px; height: 52px; font-size: 16px; }
-  .game-mini-card .name { font-family: var(--font-body); font-size: 13px; font-weight: 600; }
-  .game-card .name { font-family: var(--font-body); font-size: 15px; font-weight: 600; }
-  .badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .04em; font-size: 10px; padding: 4px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
-  .badge svg { width: 11px; height: 11px; }
-  @keyframes pulseHighlight {
-    0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), .55); }
-    70% { box-shadow: 0 0 0 16px rgba(var(--accent-rgb), 0); }
-    100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
-  }
-  .game-card.highlight { animation: pulseHighlight 1s ease; border-color: var(--accent); }
-
-  .link-of-day-link { font-family: var(--font-body); font-weight: 600; font-size: 14.5px; text-decoration: none; }
-  .link-of-day-link:hover { color: var(--accent); }
-
-  /* Inputs / buttons */
-  .input {
-    padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: var(--font-body); font-size: 14px; width: 100%;
-  }
-  .btn {
-    padding: 10px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: var(--font-body); font-weight: 600; font-size: 13.5px; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-  }
-  .btn:hover { border-color: var(--accent); }
-  .btn-primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-  .games-toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-  .games-toolbar .input { flex: 1; min-width: 200px; }
-  .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-
-  /* Placeholder panel */
-  .placeholder-panel {
-    background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-md);
-    padding: 58px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px;
-  }
-  .placeholder-panel .icon-wrap {
-    width: 52px; height: 52px; border-radius: 14px; background: var(--surface-2);
-    display: flex; align-items: center; justify-content: center; color: var(--text-muted); margin-bottom: 4px;
-  }
-  .placeholder-panel .icon-wrap svg { width: 24px; height: 24px; }
-  .placeholder-panel h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 18px; }
-  .placeholder-panel p { margin: 0; color: var(--text-muted); font-size: 13.5px; max-width: 360px; }
-
-  /* Browser */
-  .search-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .search-row select.input { flex: 0 0 150px; }
-  .search-row input.input { flex: 1; min-width: 180px; }
-
-  /* Music */
-  .music-mock { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 42px 24px; }
-  .music-art { width: 84px; height: 84px; border-radius: 20px; background: linear-gradient(135deg, var(--accent), var(--surface-2)); display: flex; align-items: center; justify-content: center; color: var(--accent-text); }
-  .music-art svg { width: 32px; height: 32px; }
-  .music-info .setting-title { margin: 0 0 4px; }
-  .music-controls { display: flex; align-items: center; gap: 20px; }
-  .icon-btn { border: none; background: transparent; color: var(--text); cursor: pointer; padding: 6px; }
-  .icon-btn svg { width: 20px; height: 20px; }
-  .icon-btn.play { width: 48px; height: 48px; background: var(--accent); color: var(--accent-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; }
-  .progress-track { width: 100%; max-width: 320px; height: 5px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
-  .progress-fill { height: 100%; width: 0%; background: var(--accent); }
-
-  /* Settings */
-  .settings-group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 4px 22px; box-shadow: var(--shadow); }
-  .group-label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); font-weight: 600; margin: 18px 0 2px; }
-  .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-  .setting-row:last-child { border-bottom: none; }
-  .setting-title { margin: 0 0 2px; font-family: var(--font-body); font-weight: 600; font-size: 14.5px; }
-  .setting-sub { margin: 0; font-family: var(--font-body); font-size: 13px; color: var(--text-muted); }
-
-  .theme-toggle { display: flex; border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; background: var(--surface-2); }
-  .theme-opt { border: none; background: transparent; padding: 7px 16px; border-radius: 999px; font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
-  .theme-opt.active { background: var(--accent); color: var(--accent-text); }
-
-  .swatches { display: flex; gap: 8px; }
-  .swatch { width: 26px; height: 26px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; padding: 0; }
-  .swatch.active { border-color: var(--text); }
-
-  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .chip { padding: 6px 13px; border-radius: 999px; border: 1px solid var(--border); font-family: var(--font-body); font-size: 12.5px; color: var(--text-muted); cursor: pointer; background: var(--surface-2); }
-  .chip.active { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-
-  .toggle-mock { width: 42px; height: 24px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); position: relative; cursor: pointer; flex-shrink: 0; padding: 0; }
-  .toggle-mock::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--text-muted); }
-
-  /* Toast */
-  .toast-container { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 999; pointer-events: none; }
-  .toast { background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-family: var(--font-body); font-size: 13px; font-weight: 500; box-shadow: var(--shadow); animation: toastIn .2s ease forwards, toastOut .2s ease 2s forwards; }
-  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-6px); } }
-
-  /* Responsive */
-  @media (max-width: 780px) {
-    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; min-height: 100vh; }
-    .sidebar { flex-direction: row; align-items: center; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 10px 12px; height: auto; }
-    .brand { padding: 4px 10px 4px 2px; }
-    .brand-name { display: none; }
-    .nav { flex-direction: row; gap: 4px; }
-    .nav-item { flex-direction: column; gap: 4px; font-size: 9.5px; padding: 8px 10px; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
-    .nav-item.active { border-bottom-color: var(--accent); }
-    .sidebar-foot { display: none; }
-    .main { height: auto; }
-    .topbar { padding: 16px 18px; }
-    .view { padding: 20px 18px 48px; }
-    .grid-2 { grid-template-columns: 1fr; }
-    .game-row { grid-template-columns: repeat(2, 1fr); }
-    .game-grid { grid-template-columns: repeat(2, 1fr); }
-    .search-row select.input { flex: 1 1 100%; }
-  }
-</style>
+    /* --- Toast System --- */
+    #toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 1000; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast { background: var(--card-bg); border: 1px solid var(--accent); padding: 0.75rem 1rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  </style>
 </head>
 <body>
 
-  <div id="coverScreen">
-    <div class="gc-header">
-      <div class="gc-brand">
-        <div class="gc-icon">≡</div>
-        <span>Google Classroom</span>
-      </div>
-    </div>
-    <div class="gc-grid">
-      <div class="gc-card">
-        <div class="gc-card-banner b-blue">
-          <div class="gc-card-title">General Science</div>
-          <div class="gc-card-sub">Period 3</div>
-        </div>
-      </div>
-      <div class="gc-card">
-        <div class="gc-card-banner b-green">
-          <div class="gc-card-title">World History</div>
-          <div class="gc-card-sub">Period 5</div>
-        </div>
-      </div>
-      <div class="gc-card">
-        <div class="gc-card-banner b-purple">
-          <div class="gc-card-title">English Language Arts</div>
-          <div class="gc-card-sub">Period 2</div>
-        </div>
-      </div>
-    </div>
+  <!-- Cover Overlay -->
+  <div id="coverScreen" class="overlay-screen">
+    <!-- Option 3: Stealth Dev Target in Top-Right Corner -->
+    <div id="devTouchZone" class="dev-touch-zone" aria-hidden="true"></div>
+    
+    <h2>Google Classroom</h2>
+    <p style="margin-top: 8px; color: #70757a;">Loading classes...</p>
   </div>
 
-  <div id="blockedScreen">
-    <div class="error-code">404 file not found</div>
-    <div class="blocked-title">BLOCKED</div>
+  <!-- Blocked Overlay -->
+  <div id="blockedScreen" class="overlay-screen blocked-screen">
+    <h1>403 Restricted</h1>
+    <p>Access denied by network administrator.</p>
   </div>
 
-  <div class="app" id="cassianApp">
-    <aside class="sidebar">
-      <div class="brand">
-        <span class="brand-mark">C</span>
-        <span class="brand-name">Cassian</span>
-      </div>
-      <nav class="nav">
-        <button type="button" class="nav-item active" data-view="home">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5L12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/><path d="M10 20v-5h4v5"/></svg></span>
-          Home
-        </button>
-        <button type="button" class="nav-item" data-view="games">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/></svg></span>
-          Games
-        </button>
-        <button type="button" class="nav-item" data-view="media">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 9l6 3-6 3V9z" fill="currentColor" stroke="none"/></svg></span>
-          Media
-        </button>
-        <button type="button" class="nav-item" data-view="links">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l1-1a3.5 3.5 0 0 1 5 5l-1 1"/><path d="M13 18l-1 1a3.5 3.5 0 0 1-5-5l1-1"/></svg></span>
-          Links
-        </button>
-        <button type="button" class="nav-item" data-view="browser">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/><circle cx="6" cy="6.5" r="0.6" fill="currentColor" stroke="none"/><circle cx="8.2" cy="6.5" r="0.6" fill="currentColor" stroke="none"/></svg></span>
-          Browser
-        </button>
-        <button type="button" class="nav-item" data-view="music">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="16" r="2.2"/></svg></span>
-          Music
-        </button>
-        <button type="button" class="nav-item" data-view="settings">
-          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9"/><path d="M17 6h3"/><circle cx="14" cy="6" r="2"/><path d="M4 12h3"/><path d="M11 12h9"/><circle cx="8" cy="12" r="2"/><path d="M4 18h9"/><path d="M17 18h3"/><circle cx="14" cy="18" r="2"/></svg></span>
-          Settings
-        </button>
-      </nav>
-      <div class="sidebar-foot">Cassian — early build</div>
-    </aside>
+  <!-- Main Cassian App Container -->
+  <div id="mainApp" class="app-container">
+    <sidebar>
+      <h2 style="margin-bottom: 1rem; color: var(--accent);">Cassian</h2>
+      <div id="nav-dashboard" class="nav-item active" onclick="switchTab('view-dashboard', 'nav-dashboard')">Dashboard</div>
+      <div id="nav-games" class="nav-item" onclick="switchTab('view-games', 'nav-games')">Games</div>
+      <div id="nav-settings" class="nav-item" onclick="switchTab('view-settings', 'nav-settings')">Settings</div>
+    </sidebar>
 
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <h1 id="pageTitle">Home</h1>
-          <p id="pageSub" class="page-sub"></p>
-        </div>
-        <div class="now-panel">
-          <span class="now-dot" aria-hidden="true"></span>
-          <div class="now-readout">
-            <span id="clockTime" class="now-time"></span>
-            <span id="clockDate" class="now-date"></span>
-          </div>
-        </div>
-      </header>
-
-      <section id="view-home" class="view active">
-        <p class="eyebrow">Welcome back</p>
-        <h2 id="greetingText" class="greeting-text">Good afternoon</h2>
-
-        <div class="grid-2 home-top">
-          <div class="card">
-            <p class="card-label">Word of the day</p>
-            <h3 id="wordText" class="word"></h3>
-            <p id="wordDef" class="text-muted"></p>
-          </div>
-          <div class="card">
-            <p class="card-label">Quote of the day</p>
-            <blockquote id="quoteText" class="quote"></blockquote>
-          </div>
-        </div>
-
-        <div class="section-head"><h3>Quick links</h3></div>
-        <div class="bars">
-          <div class="bar"><span class="bar-label">Bar 1</span><button type="button" class="chip-add">+ Add link</button></div>
-          <div class="bar"><span class="bar-label">Bar 2</span><button type="button" class="chip-add">+ Add link</button></div>
-          <div class="bar"><span class="bar-label">Bar 3</span><button type="button" class="chip-add">+ Add link</button></div>
-        </div>
-
-        <div class="section-head"><h3>Jump back in</h3><button type="button" class="link-btn" data-goto="games">See all games →</button></div>
-        <div class="game-row">
-          <button type="button" class="game-mini-card" data-soon="2048 is coming soon"><span class="tile" style="background:#5B7FBF">20</span><span class="name">2048</span></button>
-          <button type="button" class="game-mini-card" data-soon="Snake is coming soon"><span class="tile" style="background:#5FA377">Sn</span><span class="name">Snake</span></button>
-          <button type="button" class="game-mini-card" data-soon="Tic-Tac-Toe is coming soon"><span class="tile" style="background:#C1666B">XO</span><span class="name">Tic-Tac-Toe</span></button>
-          <button type="button" class="game-mini-card" data-soon="Memory Match is coming soon"><span class="tile" style="background:#C79A44">MM</span><span class="name">Memory Match</span></button>
-        </div>
-
-        <div class="card">
-          <p class="card-label">Link of the day</p>
-          <a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener" class="link-of-day-link">A random Wikipedia rabbit hole →</a>
-        </div>
+    <main>
+      <!-- Dashboard View -->
+      <section id="view-dashboard" class="view-page active">
+        <h1>Dashboard</h1>
+        <p style="margin-top: 1rem; color: var(--text-muted);">Welcome to the Cassian system control panel.</p>
       </section>
 
-      <section id="view-games" class="view">
-        <div class="games-toolbar">
-          <input id="gameSearch" class="input" type="text" placeholder="Search games…">
-          <button type="button" id="randomGameBtn" class="btn btn-primary">Random game</button>
-        </div>
-        <div class="game-grid">
-          <button type="button" class="game-card" data-name="2048" data-soon="2048 is coming soon">
-            <span class="tile" style="background:#5B7FBF">20</span>
-            <span class="name">2048</span>
-            <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Coming soon</span>
-          </button>
-          <button type="button" class="game-card" data-name="Snake" data-soon="Snake is coming soon">
-            <span class="tile" style="background:#5FA377">Sn</span>
-            <span class="name">Snake</span>
-            <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Coming soon</span>
-          </button>
-          <button type="button" class="game-card" data-name="Tic-Tac-Toe" data-soon="Tic-Tac-Toe is coming soon">
-            <span class="tile" style="background:#C1666B">XO</span>
-            <span class="name">Tic-Tac-Toe</span>
-            <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Coming soon</span>
-          </button>
-          <button type="button" class="game-card" data-name="Memory Match" data-soon="Memory Match is coming soon">
-            <span class="tile" style="background:#C79A44">MM</span>
-            <span class="name">Memory Match</span>
-            <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Coming soon</span>
-          </button>
-          <button type="button" class="game-card" data-name="Minesweeper" data-soon="Minesweeper is coming soon">
-            <span class="tile" style="background:#7A6FB5">MS</span>
-            <span class="name">Minesweeper</span>
-            <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Coming soon</span>
-          </button>
-          <button type="button" class="game-card" data-name="Solitaire" data-soon="Solitaire is coming soon">
-            <span class="tile" style="background:#4FA6A0">So</span>
-            <span class="name">Solitaire</span>
-            <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Coming soon</span>
-          </button>
-        </div>
+      <!-- Games View -->
+      <section id="view-games" class="view-page">
+        <h1>Games Library</h1>
+        <p style="margin-top: 0.5rem; color: var(--text-muted);">Active games view loaded.</p>
       </section>
 
-      <section id="view-media" class="view">
-        <div class="placeholder-panel">
-          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 9l6 3-6 3V9z" fill="currentColor" stroke="none"/></svg></div>
-          <h3>Your media library is coming soon</h3>
-          <p>Pick a player in Settings once this ships, and everything you watch will open right here.</p>
-        </div>
-      </section>
-
-      <section id="view-links" class="view">
-        <div class="placeholder-panel">
-          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l1-1a3.5 3.5 0 0 1 5 5l-1 1"/><path d="M13 18l-1 1a3.5 3.5 0 0 1-5-5l1-1"/></svg></div>
-          <h3>No new links yet</h3>
-          <p>Shortcuts you save or discover will show up here.</p>
-        </div>
-      </section>
-
-      <section id="view-browser" class="view">
-        <div class="card">
-          <p class="card-label">Search the web</p>
-          <form id="browserForm" class="search-row">
-            <select id="engineSelect" class="input" aria-label="Search engine">
-              <option value="duckduckgo" selected>DuckDuckGo</option>
-            </select>
-            <input id="browserQuery" class="input" type="text" placeholder="Search the web…">
-            <button type="submit" class="btn btn-primary">Search</button>
-          </form>
-          <p class="setting-sub" style="margin-top:10px;">Opens results in a new tab.</p>
-        </div>
-      </section>
-
-      <section id="view-music" class="view">
-        <div class="card music-mock">
-          <div class="music-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="16" r="2.2"/></svg></div>
-          <div class="music-info">
-            <p class="setting-title">Nothing queued yet</p>
-            <p class="setting-sub">Your music player is coming soon — upload tracks and control playback right from Cassian.</p>
-          </div>
-          <div class="music-controls">
-            <button type="button" class="icon-btn" data-soon="Music is coming soon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6z"/><path d="M20 5L9 12l11 7z"/></svg></button>
-            <button type="button" class="icon-btn play" data-soon="Music is coming soon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
-            <button type="button" class="icon-btn" data-soon="Music is coming soon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2z"/><path d="M4 5l11 7-11 7z"/></svg></button>
-          </div>
-          <div class="progress-track"><div class="progress-fill"></div></div>
-        </div>
-      </section>
-
-      <section id="view-settings" class="view">
-        <div class="settings-group">
-          <p class="group-label">Appearance</p>
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Theme</p>
-              <p class="setting-sub">Switch Cassian between light and dark.</p>
-            </div>
-            <div class="theme-toggle" id="themeToggle">
-              <button type="button" class="theme-opt" data-theme-choice="light">Light</button>
-              <button type="button" class="theme-opt" data-theme-choice="dark">Dark</button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Accent color</p>
-              <p class="setting-sub">Pick the interface's primary color.</p>
-            </div>
-            <div class="swatches" data-soon="Custom accent colors are coming soon">
-              <button type="button" class="swatch active" style="background:#B8862E"></button>
-              <button type="button" class="swatch" style="background:#5B7FBF"></button>
-              <button type="button" class="swatch" style="background:#5FA377"></button>
-              <button type="button" class="swatch" style="background:#7A6FB5"></button>
-              <button type="button" class="swatch" style="background:#4FA6A0"></button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Background effect</p>
-              <p class="setting-sub">Choose what moves behind the interface.</p>
-            </div>
-            <div class="chip-row" data-soon="Background effects are coming soon">
-              <button type="button" class="chip active">None</button>
-              <button type="button" class="chip">Particles</button>
-              <button type="button" class="chip">Stars</button>
-              <button type="button" class="chip">Grid</button>
-              <button type="button" class="chip">Snow</button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Loading screen</p>
-              <p class="setting-sub">How Cassian looks while a page loads.</p>
-            </div>
-            <div class="chip-row" data-soon="Loading screen styles are coming soon">
-              <button type="button" class="chip active">Simple</button>
-              <button type="button" class="chip">Pulse</button>
-              <button type="button" class="chip">Bar</button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Custom cursor</p>
-              <p class="setting-sub">Swap the pointer used inside Cassian.</p>
-            </div>
-            <div class="chip-row" data-soon="Custom cursors are coming soon">
-              <button type="button" class="chip active">Default</button>
-              <button type="button" class="chip">Dot</button>
-              <button type="button" class="chip">Cross</button>
-              <button type="button" class="chip">Circle</button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Sidebar position</p>
-              <p class="setting-sub">Move the sidebar to where it feels right.</p>
-            </div>
-            <div class="chip-row" data-soon="Sidebar position is coming soon">
-              <button type="button" class="chip active">Left</button>
-              <button type="button" class="chip">Right</button>
-              <button type="button" class="chip">Top</button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <p class="setting-title">Music on start</p>
-              <p class="setting-sub">Start playing music automatically when you open Cassian.</p>
-            </div>
-            <button type="button" class="toggle-mock" data-soon="Music on start is coming soon" aria-pressed="false"></button>
-          </div>
-        </div>
+      <!-- Settings View -->
+      <section id="view-settings" class="view-page">
+        <h1>System Settings</h1>
+        <button onclick="CassianCDN.testAllMirrors().then(console.log)" style="margin-top: 1rem; padding: 0.5rem 1rem; cursor: pointer;">Test CDN Mirrors</button>
       </section>
     </main>
   </div>
 
-  <div id="toastContainer" class="toast-container"></div>
+  <div id="toast-container"></div>
 
   <script>
-  (function(){
-    'use strict';
-
-    /* --- ENTRANCE SEQUENCE LOGIC --- */
-    var stage = 1;
-    var escCount = 0;
-
-    document.addEventListener('keydown', function(e) {
-      if (stage === 1) {
-        if (e.key >= '0' && e.key <= '9') {
-          stage = 2;
-          document.getElementById('coverScreen').style.display = 'none';
-          document.getElementById('blockedScreen').style.display = 'flex';
+    /* ==========================================================================
+       1. CDN SUBSYSTEM (Provider-Specific Architecture)
+       ========================================================================== */
+    window.CassianCDN = {
+      mirrors: [
+        {
+          name: 'jsDelivr',
+          buildUrl: (pkg, file) => `https://cdn.jsdelivr.net/npm/${pkg}/${file}`
+        },
+        {
+          name: 'unpkg',
+          buildUrl: (pkg, file) => `https://unpkg.com/${pkg}/${file}`
+        },
+        {
+          name: 'cdnjs',
+          buildUrl: (pkg, file) => `https://cdnjs.cloudflare.com/ajax/libs/${pkg}/${file}`
         }
-      } else if (stage === 2) {
-        if (e.key === 'Escape') {
-          escCount++;
-          if (escCount >= 5) {
-            stage = 3;
-            document.getElementById('blockedScreen').style.display = 'none';
-            document.getElementById('cassianApp').classList.add('active');
-            document.title = "Cassian";
+      ],
+
+      async fetchWithFallback(packageSpec, filePath, options = {}) {
+        const errors = [];
+        for (const mirror of this.mirrors) {
+          const url = mirror.buildUrl(packageSpec, filePath);
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), options.timeout || 5000);
+
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return { response, mirror: mirror.name, url };
+          } catch (err) {
+            errors.push({ mirror: mirror.name, error: err.message });
           }
+        }
+        throw new Error(`All CDN mirrors failed:\n` + errors.map(e => `[${e.mirror}]: ${e.error}`).join('\n'));
+      },
+
+      async testAllMirrors(packageSpec = 'jquery@3.6.0', filePath = 'package.json') {
+        const results = await Promise.allSettled(
+          this.mirrors.map(async (mirror) => {
+            const url = mirror.buildUrl(packageSpec, filePath);
+            const start = performance.now();
+            const response = await fetch(url, { method: 'HEAD' });
+            const latency = Math.round(performance.now() - start);
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return { mirror: mirror.name, latency, ok: true };
+          })
+        );
+
+        const summary = results.map((res, i) => {
+          if (res.status === 'fulfilled') return res.value;
+          return { mirror: this.mirrors[i].name, ok: false, error: res.reason.message };
+        });
+        
+        showToast('CDN Mirror tests logged to console');
+        return summary;
+      }
+    };
+
+    /* ==========================================================================
+       2. UI NAVIGATION & TOASTS
+       ========================================================================== */
+    function switchTab(viewId, navId) {
+      document.querySelectorAll('.view-page').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById(viewId);
+      const targetNav = document.getElementById(navId);
+
+      if (targetView) targetView.classList.add('active');
+      if (targetNav) targetNav.classList.add('active');
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    /* ==========================================================================
+       3. ENTRANCE & UNLOCK SEQUENCE
+       ========================================================================== */
+    let escCount = 0;
+    window.addEventListener('keydown', (e) => {
+      // Standard Escape entrance trigger for desktop
+      if (e.key === 'Escape') {
+        escCount++;
+        if (escCount >= 5) {
+          document.getElementById('coverScreen').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'flex';
+          showToast('Cassian Unlocked');
         }
       }
     });
 
-    /* --- CASSIAN DASHBOARD LOGIC --- */
-    /* Theme */
-    var root = document.documentElement;
-    function setTheme(mode){
-      root.setAttribute('data-theme', mode);
-      root.style.colorScheme = mode;
-      document.querySelectorAll('.theme-opt').forEach(function(btn){
-        btn.classList.toggle('active', btn.dataset.themeChoice === mode);
-      });
-    }
-    document.querySelectorAll('.theme-opt').forEach(function(btn){
-      btn.addEventListener('click', function(){ setTheme(btn.dataset.themeChoice); });
-    });
-    setTheme(root.getAttribute('data-theme') || 'dark');
-
-    /* Navigation */
-    var navItems = document.querySelectorAll('.nav-item');
-    var views = document.querySelectorAll('.view');
-    var pageTitle = document.getElementById('pageTitle');
-    var pageSub = document.getElementById('pageSub');
-    var viewMeta = {
-      home: { title: 'Home', sub: '' },
-      games: { title: 'Games', sub: 'Search your library, or leave it to chance.' },
-      media: { title: 'Media', sub: 'Your watch space.' },
-      links: { title: 'Links', sub: 'Recently added shortcuts.' },
-      browser: { title: 'Browser', sub: 'Quick search, opens in a new tab.' },
-      music: { title: 'Music', sub: 'Your soundtrack.' },
-      settings: { title: 'Settings', sub: 'Make Cassian yours.' }
+    /* ==========================================================================
+       4. DEVELOPER MODE SHORTCUT (MOBILE & DESKTOP)
+       ========================================================================== */
+    const DEV_CONFIG = {
+      enabled: true,
+      shortcutKey: 'D',
+      targetPageId: 'view-games',
+      targetNavId: 'nav-games'
     };
-    function showView(name){
-      if (!viewMeta[name]) return;
-      navItems.forEach(function(n){ n.classList.toggle('active', n.dataset.view === name); });
-      views.forEach(function(v){ v.classList.toggle('active', v.id === 'view-' + name); });
-      pageTitle.textContent = viewMeta[name].title;
-      pageSub.textContent = viewMeta[name].sub;
-      document.querySelector('.main').scrollTo(0, 0);
-    }
-    navItems.forEach(function(n){
-      n.addEventListener('click', function(){ showView(n.dataset.view); });
-    });
-    document.querySelectorAll('[data-goto]').forEach(function(el){
-      el.addEventListener('click', function(){ showView(el.dataset.goto); });
-    });
 
-    /* Clock */
-    function pad(n){ return n < 10 ? '0' + n : '' + n; }
-    function updateClock(){
-      var now = new Date();
-      var h = now.getHours();
-      var displayH = (h % 12) || 12;
-      var ampm = h >= 12 ? 'PM' : 'AM';
-      var timeStr = displayH + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + ' ' + ampm;
-      var dateStr = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-      document.getElementById('clockTime').textContent = timeStr;
-      document.getElementById('clockDate').textContent = dateStr;
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
+    function activateDeveloperMode() {
+      if (!DEV_CONFIG.enabled) return;
 
-    /* Greeting */
-    (function(){
-      var h = new Date().getHours();
-      var text = 'Good evening';
-      if (h < 5) text = 'Still up?';
-      else if (h < 12) text = 'Good morning';
-      else if (h < 18) text = 'Good afternoon';
-      document.getElementById('greetingText').textContent = text;
-    })();
+      console.warn('[DEV MODE] Skipping entrance/cover screens. Direct launch to Games view.');
 
-    /* Word & quote of the day */
-    var WORDS = [
-      { word: 'sonder', def: 'The realization that each passer-by has a life as vivid and complex as your own.' },
-      { word: 'petrichor', def: 'The pleasant, earthy scent that rises after rain hits dry ground.' },
-      { word: 'ephemeral', def: 'Lasting for a very short time.' },
-      { word: 'luminous', def: 'Full of, or shedding, light; radiant.' },
-      { word: 'serendipity', def: 'A fortunate discovery made entirely by accident.' },
-      { word: 'wanderlust', def: 'A strong, restless desire to travel and explore.' },
-      { word: 'mellifluous', def: 'Sweet and smooth to hear; pleasant sounding.' },
-      { word: 'resilience', def: 'The capacity to recover quickly from difficulty.' },
-      { word: 'solitude', def: 'The state of being alone, often by choice and often restorative.' },
-      { word: 'eloquent', def: 'Fluent, clear, and persuasive in speech or writing.' },
-      { word: 'tranquil', def: 'Free from disturbance or noise; calm.' },
-      { word: 'verdant', def: 'Green with vegetation; lush.' }
-    ];
-    var QUOTES = [
-      'Small steps, taken daily, outrun sudden leaps taken rarely.',
-      'Curiosity is the quiet engine behind every good idea.',
-      "Rest isn't the opposite of progress — it's part of it.",
-      'The best time to start was earlier. The next best time is now.',
-      'Good habits are easier to keep than they are to build.',
-      'What you practice, you slowly become.',
-      'Discipline is choosing what you want most over what you want now.',
-      'Every expert was once a beginner who kept going.',
-      'Progress hides in the ordinary, repeated days.',
-      'A calm mind notices what a rushed one misses.',
-      'Done is better than perfect, and started is better than planned.',
-      'The view improves with every step, even the hard ones.'
-    ];
-    function dayOfYear(){
-      var now = new Date();
-      var start = new Date(now.getFullYear(), 0, 0);
-      var diff = now - start;
-      return Math.floor(diff / 86400000);
-    }
-    var idx = dayOfYear();
-    var w = WORDS[idx % WORDS.length];
-    var q = QUOTES[idx % QUOTES.length];
-    document.getElementById('wordText').textContent = w.word;
-    document.getElementById('wordDef').textContent = w.def;
-    document.getElementById('quoteText').textContent = q;
+      // Hide sequence covers
+      const coverScreen = document.getElementById('coverScreen');
+      const blockedScreen = document.getElementById('blockedScreen');
+      if (coverScreen) coverScreen.style.display = 'none';
+      if (blockedScreen) blockedScreen.style.display = 'none';
 
-    /* Toast */
-    var toastContainer = document.getElementById('toastContainer');
-    function showToast(message){
-      var el = document.createElement('div');
-      el.className = 'toast';
-      el.textContent = message;
-      toastContainer.appendChild(el);
-      setTimeout(function(){ el.remove(); }, 2200);
-    }
-    document.querySelectorAll('[data-soon]').forEach(function(el){
-      el.addEventListener('click', function(){
-        showToast(el.dataset.soon || 'Coming soon');
-      });
-    });
+      // Show application
+      const mainApp = document.getElementById('mainApp');
+      if (mainApp) mainApp.style.display = 'flex';
 
-    /* Games: search + random */
-    var gameCards = document.querySelectorAll('.game-card');
-    var gameSearch = document.getElementById('gameSearch');
-    if (gameSearch){
-      gameSearch.addEventListener('input', function(){
-        var term = gameSearch.value.trim().toLowerCase();
-        gameCards.forEach(function(card){
-          var match = card.dataset.name.toLowerCase().indexOf(term) !== -1;
-          card.style.display = match ? '' : 'none';
-        });
-      });
-    }
-    var randomBtn = document.getElementById('randomGameBtn');
-    if (randomBtn){
-      randomBtn.addEventListener('click', function(){
-        var all = Array.prototype.slice.call(gameCards);
-        var pick = all[Math.floor(Math.random() * all.length)];
-        if (!pick) return;
-        if (gameSearch) gameSearch.value = '';
-        gameCards.forEach(function(c){ c.style.display = ''; });
-        pick.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        pick.classList.remove('highlight');
-        void pick.offsetWidth;
-        pick.classList.add('highlight');
-        showToast(pick.dataset.name + ' — coming soon');
-      });
+      // Route directly to Games page view & highlight nav item
+      switchTab(DEV_CONFIG.targetPageId, DEV_CONFIG.targetNavId);
+      showToast('Developer Mode: Jumped to Games');
     }
 
-    /* Quick-link bars */
-    document.querySelectorAll('.chip-add').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var label = prompt('Link label (e.g. YouTube):');
-        if (!label) return;
-        var url = prompt('URL (e.g. https://youtube.com):');
-        if (!url) return;
-        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-        var a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.className = 'chip-link';
-        a.textContent = label;
-        btn.insertAdjacentElement('beforebegin', a);
-      });
-    });
-
-    /* Browser search */
-    var browserForm = document.getElementById('browserForm');
-    if (browserForm){
-      browserForm.addEventListener('submit', function(e){
+    // Mobile Trigger: Touch top-right invisible target area
+    const devTouchZone = document.getElementById('devTouchZone');
+    if (devTouchZone) {
+      devTouchZone.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        var query = document.getElementById('browserQuery').value.trim();
-        if (!query) return;
-        var engine = document.getElementById('engineSelect').value;
-        var urls = {
-          duckduckgo: 'https://duckduckgo.com/?q=',
-          google: 'https://www.google.com/search?q=',
-          bing: 'https://www.bing.com/search?q=',
-          brave: 'https://search.brave.com/search?q='
-        };
-        var base = urls[engine] || urls.duckduckgo;
-        window.open(base + encodeURIComponent(query), '_blank', 'noopener');
+        activateDeveloperMode();
+      });
+      // Fallback click handler for mobile browsers running in desktop mode/testing
+      devTouchZone.addEventListener('click', (e) => {
+        e.preventDefault();
+        activateDeveloperMode();
       });
     }
-  })();
+
+    // Desktop Trigger: Shift + D
+    window.addEventListener('keydown', (e) => {
+      if (DEV_CONFIG.enabled && e.shiftKey && e.key.toUpperCase() === DEV_CONFIG.shortcutKey) {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        e.preventDefault();
+        activateDeveloperMode();
+      }
+    });
   </script>
 </body>
 </html>
