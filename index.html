@@ -2389,14 +2389,25 @@ Cassian
         closeSettings();
       }
 
-      if (
-  event.key === "/" && **…**
+     if (
+  event.key === "/" &&
+  !event.ctrlKey &&
+  !event.metaKey &&
+  !event.altKey &&
+  !event.shiftKey
+) {
+  const gamesView = document.getElementById("gamesView");
 
-  if (!gamesView.hidden) {
-          event.preventDefault();
-          document.getElementById("gameSearch").focus();
-        }
-      }
+  if (
+    gamesView &&
+    !gamesView.hidden &&
+    document.activeElement.tagName !== "INPUT" &&
+    document.activeElement.tagName !== "TEXTAREA"
+  ) {
+    event.preventDefault();
+    document.getElementById("gameSearch").focus();
+  }
+}
     });
 
     setupLaunchers();
