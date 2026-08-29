@@ -2,123 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home - Classroom</title>
   <!-- Pixel Font Import -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #0d0714;
-      --card-bg: #180d28;
-      --neon-pink: #ff2a85;
-      --neon-pink-glow: rgba(255, 42, 133, 0.4);
-      --neon-purple: #9d4edd;
-      --text-main: #ffffff;
-      --text-muted: #ff85a1;
-      --border-color: #ff2a85;
+      --bg-color: #120a1c;
+      --card-bg: #1c102b;
+      --text-color: #ff3b8d;
+      --border-color: #ff3b8d;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
       background: var(--bg-color);
-      color: var(--text-main);
+      color: var(--text-color);
       height: 100vh;
       overflow: hidden;
       font-family: 'VT323', monospace;
-      touch-action: manipulation;
-    }
-
-    /* Fixed Canvas: Ensure pointer-events is explicitly none so clicks pass through */
-    #particleCanvas {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none !important;
-    }
-
-    /* --- Overlays & Masking Screens --- */
-    .overlay-screen {
-      position: fixed; inset: 0; z-index: 9999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #ffffff; color: #3c4043; text-align: center; font-family: sans-serif;
-    }
-    .blocked-screen { background: #1a1a1a; color: #ef4444; display: none; }
-
-    /* Invisible Mobile Developer Mode Corner Touch Target */
-    .dev-touch-zone {
-      position: absolute; top: 0; right: 0; width: 60px; height: 60px; z-index: 10000;
-      background: transparent; -webkit-tap-highlight-color: transparent; cursor: pointer;
-    }
-
-    /* --- Core Dashboard Architecture --- */
-    .app-container {
-      display: none;
-      height: 100vh;
-      width: 100vw;
-      position: relative;
-      z-index: 10;
+      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 1.5rem 1rem 1rem 1rem;
+      padding: 1rem;
+      transition: background 0.2s;
     }
 
-    /* --- Pixel Header & Date Banner --- */
+    /* --- Header & Date (No Text Glow) --- */
     .header-section {
       text-align: center;
       margin-top: 0.5rem;
-      pointer-events: auto;
     }
 
     .pixel-day {
       font-family: 'Press Start 2P', cursive;
-      font-size: clamp(2.2rem, 6vw, 4rem);
-      color: var(--neon-pink);
-      text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink-glow), 3px 3px 0px #000;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--text-color);
       letter-spacing: 4px;
       text-transform: uppercase;
+      transition: color 0.2s;
     }
 
     .pixel-date {
       font-family: 'Press Start 2P', cursive;
-      font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+      font-size: clamp(0.8rem, 2vw, 1.3rem);
       color: #ffffff;
       margin-top: 0.5rem;
       letter-spacing: 3px;
-      text-shadow: 2px 2px 0px #000;
     }
 
-    /* --- Neon Search Box --- */
+    /* --- Search Box --- */
     .search-container {
       width: 100%;
       max-width: 720px;
       position: relative;
-      margin: 1.25rem 0;
-      z-index: 20;
+      margin: 1rem 0;
     }
 
     .search-input {
       width: 100%;
-      background: rgba(24, 13, 40, 0.95);
-      border: 3px solid var(--neon-pink);
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
       border-radius: 8px;
       padding: 0.75rem 3rem 0.75rem 1.25rem;
       font-family: 'VT323', monospace;
       font-size: 1.6rem;
-      color: #ffffff;
+      color: var(--text-color);
       outline: none;
-      box-shadow: 0 0 15px var(--neon-pink-glow), inset 0 0 10px rgba(0,0,0,0.5);
+      transition: border-color 0.2s;
     }
 
-    .search-input::placeholder { color: rgba(255, 42, 133, 0.7); }
+    .search-input::placeholder { color: var(--text-color); opacity: 0.7; }
 
     .search-icon {
       position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
-      color: var(--neon-pink); font-size: 1.4rem; pointer-events: none;
+      color: var(--text-color); font-size: 1.4rem; pointer-events: none;
     }
 
-    /* --- Game Cards Layout --- */
+    /* --- Games Layout --- */
     .main-content {
       width: 100%;
       max-width: 860px;
@@ -127,7 +90,6 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 20;
     }
 
     .games-grid {
@@ -140,25 +102,20 @@
 
     .game-card {
       background: var(--card-bg);
-      border: 3px solid var(--neon-pink);
-      border-radius: 12px;
+      border: 3px solid var(--border-color);
+      border-radius: 10px;
       aspect-ratio: 1 / 1;
       overflow: hidden;
       cursor: pointer;
       position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 0 10px var(--neon-pink-glow);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      user-select: none;
+      transition: transform 0.1s, border-color 0.2s;
     }
 
-    .game-card:hover {
-      transform: translateY(-6px) scale(1.03);
-      box-shadow: 0 0 25px var(--neon-pink);
-    }
+    .game-card:hover { transform: translateY(-4px); }
 
     .game-card-icon {
       font-size: 3rem;
@@ -168,13 +125,13 @@
     .game-title-overlay {
       position: absolute;
       bottom: 0; inset-x: 0;
-      background: rgba(13, 7, 20, 0.95);
+      background: rgba(0, 0, 0, 0.85);
       color: #fff;
       font-family: 'Press Start 2P', cursive;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       padding: 0.5rem 0.2rem;
       text-align: center;
-      border-top: 2px solid var(--neon-pink);
+      border-top: 2px solid var(--border-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -182,165 +139,141 @@
 
     .footer-quote {
       font-family: 'Press Start 2P', cursive;
-      font-size: 0.7rem;
-      color: var(--text-muted);
+      font-size: 0.65rem;
+      color: var(--text-color);
       margin-bottom: 0.75rem;
       text-align: center;
-      letter-spacing: 1px;
     }
 
-    /* --- Retro Bottom Navigation Dock --- */
+    /* --- Bottom Dock Navigation & Controls --- */
     .dock-nav {
       width: 100%;
       max-width: 860px;
-      background: rgba(24, 13, 40, 0.95);
-      border: 3px solid var(--neon-pink);
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: space-around;
-      padding: 0.4rem 0.75rem;
-      box-shadow: 0 0 15px var(--neon-pink-glow);
-      z-index: 20;
+      padding: 0.5rem;
+      z-index: 100;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .dock-btn {
       background: transparent;
       border: 2px solid transparent;
-      color: var(--text-main);
+      color: #ffffff;
       font-family: 'VT323', monospace;
-      font-size: 1.5rem;
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
+      font-size: 1.4rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      transition: all 0.2s;
     }
 
     .dock-btn:hover {
-      border-color: var(--neon-pink);
-      color: var(--neon-pink);
-      box-shadow: 0 0 8px var(--neon-pink-glow);
+      border-color: var(--border-color);
+      color: var(--text-color);
     }
 
     .dock-btn.active {
-      background: var(--neon-pink);
-      color: #0d0714;
+      background: var(--border-color);
+      color: #000;
       font-weight: bold;
-      box-shadow: 0 0 12px var(--neon-pink);
     }
 
-    /* Viewer Overlay for External GitHub Games */
-    .game-viewer {
-      position: fixed; inset: 0; z-index: 20000;
-      background: #0d0714; display: none; flex-direction: column;
+    .color-picker-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.2rem;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
     }
-    .game-viewer-bar {
-      height: 48px; background: #180d28; border-bottom: 2px solid var(--neon-pink);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 1rem;
-    }
-    .game-viewer-bar button {
-      background: var(--neon-pink); color: #0d0714; border: none; padding: 0.4rem 1rem;
-      font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border-radius: 4px; cursor: pointer;
-    }
-    .game-viewer iframe { flex: 1; border: none; width: 100%; height: 100%; background: #000; }
 
-    /* Toast Container */
-    #toast-container { position: fixed; bottom: 5rem; right: 1.5rem; z-index: 30000; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
-    .toast { background: var(--card-bg); border: 2px solid var(--neon-pink); color: #fff; padding: 0.6rem 1rem; border-radius: 6px; font-family: 'VT323', monospace; font-size: 1.2rem; }
+    .color-picker-group input[type="color"] {
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+    }
 
     @media (max-width: 768px) {
       .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
-      .pixel-day { font-size: 2rem; }
-      .pixel-date { font-size: 0.9rem; }
-      .search-input { font-size: 1.2rem; padding: 0.5rem 1rem; }
-      .dock-nav { overflow-x: auto; justify-content: flex-start; gap: 0.5rem; }
-      .dock-btn { font-size: 1.2rem; padding: 0.3rem 0.6rem; }
+      .pixel-day { font-size: 1.8rem; }
+      .pixel-date { font-size: 0.8rem; }
+      .dock-nav { justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Floating Canvas Background -->
-  <canvas id="particleCanvas"></canvas>
+  <!-- Header -->
+  <header class="header-section">
+    <h1 id="dayDisplay" class="pixel-day">SATURDAY</h1>
+    <div id="dateDisplay" class="pixel-date">AUGUST 29, 2026</div>
+  </header>
 
-  <!-- Google Classroom Stealth Cover Screen -->
-  <div id="coverScreen" class="overlay-screen">
-    <div id="devTouchZone" class="dev-touch-zone" title="Dev Mode Touch Zone"></div>
-    <h2 style="font-size: 2rem; color: #3c4043;">Google Classroom</h2>
-    <p style="margin-top: 8px; color: #70757a;">Loading classes...</p>
-    <p style="margin-top: 20px; font-size: 0.8rem; color: #aaa;">Press Shift+D or Tap Top-Right Corner to Open</p>
-  </div>
-
-  <!-- Blocked Overlay Screen -->
-  <div id="blockedScreen" class="overlay-screen blocked-screen">
-    <h1 style="font-size: 2.5rem;">403 Restricted</h1>
-    <p style="margin-top: 0.5rem;">Access denied by network administrator.</p>
-  </div>
-
-  <!-- Main Synthwave Dashboard -->
-  <div id="mainApp" class="app-container">
-    
-    <header class="header-section">
-      <h1 id="dayDisplay" class="pixel-day">SATURDAY</h1>
-      <div id="dateDisplay" class="pixel-date">AUGUST 29, 2026</div>
-    </header>
-
-    <main class="main-content">
-      <!-- Interactive Search Box -->
-      <div class="search-container">
-        <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01" oninput="filterGames()">
-        <span class="search-icon">🔍</span>
-      </div>
-
-      <!-- Live Web Games Grid -->
-      <div class="games-grid" id="gamesGrid">
-        <div class="game-card" data-name="2048" onclick="launchGame('https://play2048.co/')">
-          <div class="game-card-icon">🔢</div>
-          <div class="game-title-overlay">2048</div>
-        </div>
-        <div class="game-card" data-name="hextris" onclick="launchGame('https://hextris.io/')">
-          <div class="game-card-icon">🔷</div>
-          <div class="game-title-overlay">Hextris</div>
-        </div>
-        <div class="game-card" data-name="pacman" onclick="launchGame('https://pacman.cc/')">
-          <div class="game-card-icon">🟡</div>
-          <div class="game-title-overlay">Pacman</div>
-        </div>
-        <div class="game-card" data-name="paperio" onclick="launchGame('https://paper-io.com/')">
-          <div class="game-card-icon">📐</div>
-          <div class="game-title-overlay">Paper.io</div>
-        </div>
-      </div>
-
-      <div class="footer-quote">rub your Chromebook for good luck -</div>
-    </main>
-
-    <!-- Interactive Navigation Bar Dock -->
-    <nav class="dock-nav">
-      <button class="dock-btn active" onclick="showToast('Home View Active')">🏠 Home</button>
-      <button class="dock-btn" onclick="showToast('Games Loaded')">🎮 Games</button>
-      <button class="dock-btn" onclick="showToast('Tools Menu')">🛠️ Tools</button>
-      <button class="dock-btn" onclick="showToast('Apps Menu')">💬 Apps</button>
-      <button class="dock-btn" onclick="showToast('Settings Opened')">⚙️ Settings</button>
-    </nav>
-  </div>
-
-  <!-- Game Embed Iframe Modal -->
-  <div id="gameViewer" class="game-viewer">
-    <div class="game-viewer-bar">
-      <span style="color: var(--neon-pink); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">CASSIAN GAME RUNTIME</span>
-      <button onclick="closeGame()">CLOSE [X]</button>
+  <main class="main-content">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01" oninput="filterGames()">
+      <span class="search-icon">🔍</span>
     </div>
-    <iframe id="gameViewerFrame" src="about:blank"></iframe>
-  </div>
 
-  <div id="toast-container"></div>
+    <!-- Games Grid Placeholder (Ready for your games) -->
+    <div class="games-grid" id="gamesGrid">
+      <div class="game-card" data-name="game1" onclick="alert('Add your game URL here!')">
+        <div class="game-card-icon">🎮</div>
+        <div class="game-title-overlay">Game 1</div>
+      </div>
+      <div class="game-card" data-name="game2" onclick="alert('Add your game URL here!')">
+        <div class="game-card-icon">🎯</div>
+        <div class="game-title-overlay">Game 2</div>
+      </div>
+      <div class="game-card" data-name="game3" onclick="alert('Add your game URL here!')">
+        <div class="game-card-icon">🚀</div>
+        <div class="game-title-overlay">Game 3</div>
+      </div>
+      <div class="game-card" data-name="game4" onclick="alert('Add your game URL here!')">
+        <div class="game-card-icon">👾</div>
+        <div class="game-title-overlay">Game 4</div>
+      </div>
+    </div>
+
+    <div class="footer-quote">rub your Chromebook for good luck -</div>
+  </main>
+
+  <!-- Bottom Navigation Dock with Live Color Customizers -->
+  <nav class="dock-nav">
+    <button class="dock-btn active">🏠 Home</button>
+    <button class="dock-btn">🎮 Games</button>
+    
+    <!-- Color Pickers for Customization -->
+    <div class="color-picker-group">
+      <label for="textColorPicker">Text:</label>
+      <input type="color" id="textColorPicker" value="#ff3b8d" oninput="updateTextTheme(this.value)">
+    </div>
+
+    <div class="color-picker-group">
+      <label for="bgColorPicker">BG:</label>
+      <input type="color" id="bgColorPicker" value="#120a1c" oninput="updateBgTheme(this.value)">
+    </div>
+
+    <button class="dock-btn">⚙️ Settings</button>
+  </nav>
 
   <script>
-    /* Dynamic Date Update */
+    // Live Date Calculation
     function updateDateDisplay() {
       const now = new Date();
       const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -351,45 +284,17 @@
     }
     updateDateDisplay();
 
-    /* Particle Background Animation */
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    for(let i = 0; i < 40; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.6 + 0.2,
-        speedY: -Math.random() * 0.4 - 0.1
-      });
+    // Theme Customizer Functions
+    function updateTextTheme(color) {
+      document.documentElement.style.setProperty('--text-color', color);
+      document.documentElement.style.setProperty('--border-color', color);
     }
 
-    function renderParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#ff2a85';
-      
-      particles.forEach(p => {
-        ctx.globalAlpha = p.alpha;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-        p.y += p.speedY;
-        if(p.y < 0) p.y = canvas.height;
-      });
-      requestAnimationFrame(renderParticles);
+    function updateBgTheme(color) {
+      document.documentElement.style.setProperty('--bg-color', color);
     }
-    renderParticles();
 
-    /* Live Game Filter & Launch Actions */
+    // Search Box Filtering
     function filterGames() {
       const query = document.getElementById('gameSearch').value.toLowerCase();
       document.querySelectorAll('.game-card').forEach(card => {
@@ -397,65 +302,6 @@
         card.style.display = text.toLowerCase().includes(query) ? 'flex' : 'none';
       });
     }
-
-    function launchGame(url) {
-      const viewer = document.getElementById('gameViewer');
-      const frame = document.getElementById('gameViewerFrame');
-      frame.src = url;
-      viewer.style.display = 'flex';
-      showToast('Loading game...');
-    }
-
-    function closeGame() {
-      const viewer = document.getElementById('gameViewer');
-      const frame = document.getElementById('gameViewerFrame');
-      frame.src = 'about:blank';
-      viewer.style.display = 'none';
-    }
-
-    function showToast(message) {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 2500);
-    }
-
-    /* Developer Mode Activation Triggers */
-    function activateDeveloperMode() {
-      document.getElementById('coverScreen').style.display = 'none';
-      document.getElementById('blockedScreen').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'flex';
-      showToast('Developer Mode Active');
-    }
-
-    // Touch Zone Handler (Mobile Top-Right)
-    const devTouchZone = document.getElementById('devTouchZone');
-    if (devTouchZone) {
-      devTouchZone.addEventListener('click', (e) => {
-        e.preventDefault();
-        activateDeveloperMode();
-      });
-      devTouchZone.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        activateDeveloperMode();
-      });
-    }
-
-    // Keyboard Handlers (Shift + D or 5x Escape)
-    let escCount = 0;
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        escCount++;
-        if (escCount >= 5) activateDeveloperMode();
-      }
-      if (e.shiftKey && e.key.toUpperCase() === 'D') {
-        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-        e.preventDefault();
-        activateDeveloperMode();
-      }
-    });
   </script>
 </body>
 </html>
