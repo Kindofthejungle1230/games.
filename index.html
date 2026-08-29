@@ -1902,12 +1902,16 @@ Cassian
     }
 
     function openInAboutBlank(title, url) {
-      const popup = window.open("about:blank", "_blank");
+  const popup = window.open("about:blank", "_blank");
 
-      if (!popup) {
-        alert("Please allow pop-ups to launch cassian links.");
-        return;
-      }
+  if (!popup) {
+    alert("Pop-ups are blocked. Allow pop-ups for Cassian.");
+    return;
+  }
+
+  popup.location.href = url;
+  popup.focus();
+}
 
       popup.document.open();
 
