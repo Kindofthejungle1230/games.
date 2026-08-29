@@ -2,35 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Home - Classroom</title>
   <!-- Pixel Font Import -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #120a1c;
-      --card-bg: #1c102b;
-      --text-color: #ff3b8d;
-      --border-color: #ff3b8d;
+      --bg-color: #0d0714;
+      --card-bg: #180d28;
+      --neon-pink: #ff2a85;
+      --neon-purple: #9d4edd;
+      --text-main: #ffffff;
+      --text-muted: #ff85a1;
+      --border-color: #ff2a85;
+      
+      /* Configurable Minecraft Text Color Variable */
+      --minecraft-text-color: #22c55e;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
       background: var(--bg-color);
-      color: var(--text-color);
+      color: var(--text-main);
       height: 100vh;
       overflow: hidden;
       font-family: 'VT323', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
+      touch-action: manipulation;
       transition: background 0.2s;
     }
 
-    /* --- Header & Date (No Text Glow) --- */
+    /* Background Animation Canvas */
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none !important;
+    }
+
+    /* --- Overlays & Stealth Mask Screens --- */
+    .overlay-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #ffffff; color: #3c4043; text-align: center; font-family: sans-serif;
+    }
+    .blocked-screen { background: #1a1a1a; color: #ef4444; display: none; }
+
+    /* Invisible Mobile Developer Mode Corner Touch Target (Strict 48x48px) */
+    .dev-touch-zone {
+      position: absolute; top: 0; right: 0; width: 48px; height: 48px; z-index: 10000;
+      background: transparent; -webkit-tap-highlight-color: transparent; cursor: pointer;
+    }
+
+    /* --- Core Dashboard Architecture --- */
+    .app-container {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 10;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 1rem 1rem 1rem;
+    }
+
+    /* --- Header & Date Banner --- */
     .header-section {
       text-align: center;
       margin-top: 0.5rem;
@@ -39,7 +76,7 @@
     .pixel-day {
       font-family: 'Press Start 2P', cursive;
       font-size: clamp(2rem, 5vw, 3.5rem);
-      color: var(--text-color);
+      color: var(--neon-pink);
       letter-spacing: 4px;
       text-transform: uppercase;
       transition: color 0.2s;
@@ -53,7 +90,7 @@
       letter-spacing: 3px;
     }
 
-    /* --- Search Box --- */
+    /* --- Search Bar --- */
     .search-container {
       width: 100%;
       max-width: 720px;
@@ -69,19 +106,19 @@
       padding: 0.75rem 3rem 0.75rem 1.25rem;
       font-family: 'VT323', monospace;
       font-size: 1.6rem;
-      color: var(--text-color);
+      color: var(--text-main);
       outline: none;
       transition: border-color 0.2s;
     }
 
-    .search-input::placeholder { color: var(--text-color); opacity: 0.7; }
+    .search-input::placeholder { color: var(--neon-pink); opacity: 0.7; }
 
     .search-icon {
       position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
-      color: var(--text-color); font-size: 1.4rem; pointer-events: none;
+      color: var(--neon-pink); font-size: 1.4rem; pointer-events: none;
     }
 
-    /* --- Games Layout --- */
+    /* --- Placeholder Games Grid Layout --- */
     .main-content {
       width: 100%;
       max-width: 860px;
@@ -112,10 +149,18 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: transform 0.1s, border-color 0.2s;
+      user-select: none;
+      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
     }
 
     .game-card:hover { transform: translateY(-4px); }
+
+    /* Highlight class triggered on click */
+    .game-card.selected {
+      border-color: #ffffff !important;
+      box-shadow: 0 0 15px var(--border-color);
+      transform: scale(1.02);
+    }
 
     .game-card-icon {
       font-size: 3rem;
@@ -137,15 +182,20 @@
       text-overflow: ellipsis;
     }
 
+    /* Custom Color styling specifically applied to the Minecraft title */
+    .minecraft-card .game-title-overlay {
+      color: var(--minecraft-text-color);
+    }
+
     .footer-quote {
       font-family: 'Press Start 2P', cursive;
       font-size: 0.65rem;
-      color: var(--text-color);
+      color: var(--text-muted);
       margin-bottom: 0.75rem;
       text-align: center;
     }
 
-    /* --- Bottom Dock Navigation & Controls --- */
+    /* --- Bottom Navigation Dock & Settings Controls --- */
     .dock-nav {
       width: 100%;
       max-width: 860px;
@@ -164,7 +214,7 @@
     .dock-btn {
       background: transparent;
       border: 2px solid transparent;
-      color: #ffffff;
+      color: var(--text-main);
       font-family: 'VT323', monospace;
       font-size: 1.4rem;
       padding: 0.3rem 0.6rem;
@@ -177,7 +227,7 @@
 
     .dock-btn:hover {
       border-color: var(--border-color);
-      color: var(--text-color);
+      color: var(--neon-pink);
     }
 
     .dock-btn.active {
@@ -189,8 +239,8 @@
     .color-picker-group {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 1.2rem;
+      gap: 0.4rem;
+      font-size: 1.1rem;
       color: #fff;
       background: rgba(0, 0, 0, 0.3);
       padding: 0.2rem 0.5rem;
@@ -200,11 +250,32 @@
 
     .color-picker-group input[type="color"] {
       border: none;
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 4px;
       cursor: pointer;
       background: none;
+    }
+
+    /* Toast Notification */
+    #toast-container { 
+      position: fixed; 
+      bottom: 5rem; 
+      right: 1.5rem; 
+      z-index: 30000; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 0.5rem; 
+      pointer-events: none; 
+    }
+    .toast { 
+      background: var(--card-bg); 
+      border: 2px solid var(--border-color); 
+      color: #fff; 
+      padding: 0.6rem 1rem; 
+      border-radius: 6px; 
+      font-family: 'VT323', monospace; 
+      font-size: 1.3rem; 
     }
 
     @media (max-width: 768px) {
@@ -217,63 +288,92 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="header-section">
-    <h1 id="dayDisplay" class="pixel-day">SATURDAY</h1>
-    <div id="dateDisplay" class="pixel-date">AUGUST 29, 2026</div>
-  </header>
+  <!-- Floating Background Canvas -->
+  <canvas id="particleCanvas"></canvas>
 
-  <main class="main-content">
-    <!-- Search Bar -->
-    <div class="search-container">
-      <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01" oninput="filterGames()">
-      <span class="search-icon">🔍</span>
-    </div>
+  <!-- Google Classroom Stealth Mask Cover Screen -->
+  <div id="coverScreen" class="overlay-screen">
+    <div id="devTouchZone" class="dev-touch-zone" title="Dev Mode Touch Target"></div>
+    <h2 style="font-size: 2rem; color: #3c4043;">Google Classroom</h2>
+    <p style="margin-top: 8px; color: #70757a;">Loading classes...</p>
+  </div>
 
-    <!-- Games Grid Placeholder (Ready for your games) -->
-    <div class="games-grid" id="gamesGrid">
-      <div class="game-card" data-name="game1" onclick="alert('Add your game URL here!')">
-        <div class="game-card-icon">🎮</div>
-        <div class="game-title-overlay">Game 1</div>
-      </div>
-      <div class="game-card" data-name="game2" onclick="alert('Add your game URL here!')">
-        <div class="game-card-icon">🎯</div>
-        <div class="game-title-overlay">Game 2</div>
-      </div>
-      <div class="game-card" data-name="game3" onclick="alert('Add your game URL here!')">
-        <div class="game-card-icon">🚀</div>
-        <div class="game-title-overlay">Game 3</div>
-      </div>
-      <div class="game-card" data-name="game4" onclick="alert('Add your game URL here!')">
-        <div class="game-card-icon">👾</div>
-        <div class="game-title-overlay">Game 4</div>
-      </div>
-    </div>
+  <!-- Blocked Overlay -->
+  <div id="blockedScreen" class="overlay-screen blocked-screen">
+    <h1 style="font-size: 2.5rem;">403 Restricted</h1>
+    <p style="margin-top: 0.5rem;">Access denied by network administrator.</p>
+  </div>
 
-    <div class="footer-quote">rub your Chromebook for good luck -</div>
-  </main>
-
-  <!-- Bottom Navigation Dock with Live Color Customizers -->
-  <nav class="dock-nav">
-    <button class="dock-btn active">🏠 Home</button>
-    <button class="dock-btn">🎮 Games</button>
+  <!-- Main Dashboard (Games Page) -->
+  <div id="mainApp" class="app-container">
     
-    <!-- Color Pickers for Customization -->
-    <div class="color-picker-group">
-      <label for="textColorPicker">Text:</label>
-      <input type="color" id="textColorPicker" value="#ff3b8d" oninput="updateTextTheme(this.value)">
-    </div>
+    <header class="header-section">
+      <h1 id="dayDisplay" class="pixel-day">SATURDAY</h1>
+      <div id="dateDisplay" class="pixel-date">AUGUST 29, 2026</div>
+    </header>
 
-    <div class="color-picker-group">
-      <label for="bgColorPicker">BG:</label>
-      <input type="color" id="bgColorPicker" value="#120a1c" oninput="updateBgTheme(this.value)">
-    </div>
+    <main class="main-content">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input type="text" id="gameSearch" class="search-input" placeholder="Search for G4mes! - v4.01" oninput="filterGames()">
+        <span class="search-icon">🔍</span>
+      </div>
 
-    <button class="dock-btn">⚙️ Settings</button>
-  </nav>
+      <!-- Placeholder Games Grid -->
+      <div class="games-grid" id="gamesGrid">
+        <!-- Main Minecraft Placeholder Card -->
+        <div class="game-card minecraft-card" data-name="minecraft" onclick="selectCard(this, 'Minecraft — Coming Soon')">
+          <div class="game-card-icon">🟩</div>
+          <div class="game-title-overlay">Minecraft</div>
+        </div>
+        
+        <!-- Auxiliary Placeholder Cards -->
+        <div class="game-card" data-name="placeholder 1" onclick="selectCard(this, 'Placeholder 1 — Coming Soon')">
+          <div class="game-card-icon">🟦</div>
+          <div class="game-title-overlay">Slot 2</div>
+        </div>
+        <div class="game-card" data-name="placeholder 2" onclick="selectCard(this, 'Placeholder 2 — Coming Soon')">
+          <div class="game-card-icon">🟥</div>
+          <div class="game-title-overlay">Slot 3</div>
+        </div>
+        <div class="game-card" data-name="placeholder 3" onclick="selectCard(this, 'Placeholder 3 — Coming Soon')">
+          <div class="game-card-icon">🟨</div>
+          <div class="game-title-overlay">Slot 4</div>
+        </div>
+      </div>
+
+      <div class="footer-quote">rub your Chromebook for good luck -</div>
+    </main>
+
+    <!-- Bottom Navigation Dock & Themes Menu -->
+    <nav class="dock-nav">
+      <button class="dock-btn active" onclick="showToast('Home View Active')">🏠 Home</button>
+      <button class="dock-btn" onclick="showToast('Games Dashboard')">🎮 Games</button>
+      
+      <!-- Theme Customizer Pickers -->
+      <div class="color-picker-group">
+        <label for="textColorPicker">Text:</label>
+        <input type="color" id="textColorPicker" value="#ff2a85" oninput="updateTextTheme(this.value)">
+      </div>
+
+      <div class="color-picker-group">
+        <label for="mcColorPicker">MC Color:</label>
+        <input type="color" id="mcColorPicker" value="#22c55e" oninput="updateMinecraftColor(this.value)">
+      </div>
+
+      <div class="color-picker-group">
+        <label for="bgColorPicker">BG:</label>
+        <input type="color" id="bgColorPicker" value="#0d0714" oninput="updateBgTheme(this.value)">
+      </div>
+
+      <button class="dock-btn" onclick="showToast('Settings Menu')">⚙️ Settings</button>
+    </nav>
+  </div>
+
+  <div id="toast-container"></div>
 
   <script>
-    // Live Date Calculation
+    /* 1. Date calculation */
     function updateDateDisplay() {
       const now = new Date();
       const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -284,17 +384,61 @@
     }
     updateDateDisplay();
 
-    // Theme Customizer Functions
-    function updateTextTheme(color) {
-      document.documentElement.style.setProperty('--text-color', color);
-      document.documentElement.style.setProperty('--border-color', color);
+    /* 2. Particle Simulation Canvas */
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for(let i = 0; i < 35; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.5 + 0.2,
+        speedY: -Math.random() * 0.3 - 0.1
+      });
     }
 
-    function updateBgTheme(color) {
-      document.documentElement.style.setProperty('--bg-color', color);
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const mainColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#ff2a85';
+      ctx.fillStyle = mainColor;
+      
+      particles.forEach(p => {
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        p.y += p.speedY;
+        if(p.y < 0) p.y = canvas.height;
+      });
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    /* 3. Card Selection & Notification Systems */
+    function selectCard(cardElement, message) {
+      document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
+      cardElement.classList.add('selected');
+      showToast(message);
     }
 
-    // Search Box Filtering
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+    }
+
     function filterGames() {
       const query = document.getElementById('gameSearch').value.toLowerCase();
       document.querySelectorAll('.game-card').forEach(card => {
@@ -302,6 +446,49 @@
         card.style.display = text.toLowerCase().includes(query) ? 'flex' : 'none';
       });
     }
+
+    /* 4. Color Customizer Handlers */
+    function updateTextTheme(color) {
+      document.documentElement.style.setProperty('--neon-pink', color);
+      document.documentElement.style.setProperty('--border-color', color);
+    }
+
+    function updateMinecraftColor(color) {
+      document.documentElement.style.setProperty('--minecraft-text-color', color);
+    }
+
+    function updateBgTheme(color) {
+      document.documentElement.style.setProperty('--bg-color', color);
+    }
+
+    /* 5. Developer Mode Trigger System */
+    function activateDeveloperMode() {
+      document.getElementById('coverScreen').style.display = 'none';
+      document.getElementById('blockedScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'flex';
+      showToast('Developer Mode — Games Active');
+    }
+
+    // Stealth Touch Target on Top-Right Corner for Mobile (48x48px)
+    const devTouchZone = document.getElementById('devTouchZone');
+    if (devTouchZone) {
+      devTouchZone.addEventListener('touchstart', (e) => { e.preventDefault(); activateDeveloperMode(); });
+      devTouchZone.addEventListener('click', (e) => { e.preventDefault(); activateDeveloperMode(); });
+    }
+
+    // Key Binding (Shift + D) & Escape Chain (5x)
+    let escCount = 0;
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        escCount++;
+        if (escCount >= 5) activateDeveloperMode();
+      }
+      if (e.shiftKey && e.key.toUpperCase() === 'D') {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        e.preventDefault();
+        activateDeveloperMode();
+      }
+    });
   </script>
 </body>
 </html>
